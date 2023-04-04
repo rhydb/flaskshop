@@ -14,8 +14,22 @@ def product(productid):
 @main.route("/")
 @main.route("/products/")
 def index():
-    products = db.session.execute(db.select(Product)).scalars()
+    search = request.args.get("search")
+    if search:
+        products = db.session.execute(
+            db.select(Product).filter(Product.name.like("%" + search + "%"))
+        ).scalars()
+    else:
+        products = db.session.execute(db.select(Product)).scalars()
     return render_template("index.html", products=products)
+
+
+@main.route("/setup")
+def setup():
+    for product in tractor_items:
+        db.session.add(product)
+    db.session.commit()
+    return redirect(url_for("main.index"))
 
 
 @main.route("/register", methods=["GET", "POST"])
