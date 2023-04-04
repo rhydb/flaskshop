@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Log In - TractorKingdom</title>
+{% endblock %}
+
+{% block body %}
+    {% block notifications %}
+        <div id="notification-wrapper"></div>
+    {% endblock %}
+    <div class="center-wrapper">
+        {% block nav %}
+            {% block cart %}{% endblock %}
+            {% block login %}{% endblock %}
+            {{ super() }}
+        {% endblock %}
+
+        {% block main %}
+        <main class="center">
+            <h1>Log In</h1>
+
+            {% for msg in get_flashed_messages() %}
+            <div class="errormsg">{{ msg }}</div>
+            {% endfor %}
+
+            <div class="errormsg"></div>
+            <form class="longform" method="POST">
+                <div>
+                    <label for="username">Username <span class="errormsg" id="login-username-error"></span></label> <br>
+                    <input type="text" name="username" id="login-username">
+                </div>
+
+                <div>
+                    <label for="password">Password <span class="errormsg" id="login-password-error"></span></label> <br>
+                    <input type="password" name="password" id="login-password">
+                </div>
+
+                <button class="btn" type="submit">Log In</button>
+            </form>
+        </main>
+        {% endblock %}
+    </div>
+{% endblock %}

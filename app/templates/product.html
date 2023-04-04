@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block main %}
+<main>
+    <div class="indented">
+        <div class="search-container">
+            <form class="search-wrapper" action="/products">
+                <input type="text" name="search" id="searchInput" class="search">
+                <button class="btn search">Search</button>
+            </form>
+        </div>
+
+        <div class="item-info">
+            <div class="item-header row">
+                <img src='{{ url_for("static", filename="img/" + product.image )}}' alt="" class="item-img">
+
+                <div class="column">
+                    <h1 class="item-name">{{ product.name }}</h1>
+                    <p>£{{ product.price }}</p>
+                    <button class="btn btn-addtocart">Add to cart</button>
+                </div>
+            </div>
+
+            <div class="item-description">
+                <p>{{ product.short_desc }}</p>
+                <p>{{ product.long_desc }}</p>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

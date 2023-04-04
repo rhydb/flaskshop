@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block main %}
+<main>
+    {% if current_user.is_authenticated %}
+        <h1>{{ current_user.username }}</h1>
+    {% endif %}
+    <div class="indented">
+        <div class="search-container">
+            <form class="search-wrapper" action="">
+                <input type="text" name="search" id="searchInput" class="search">
+                <button class="btn search">Search</button>
+            </form>
+
+            <div>
+                <p>Showing <span id="result-count"></span> results</p>
+                <label for="sortBy">Sort</label>
+                <select name="sortBy" id="sortBy">
+                    <option value="lowhigh">Price low to high</option>
+                    <option value="highlow">Price high to low</option>
+                    <option value="az">Name A-Z</option>
+                    <option value="az">Name Z-A</option>
+                    <option value="az">Environmental impact</option>
+                </select>
+            </div>
+        </div>
+        <div class="result-wrapper" id="result-wrapper">
+            {% for product in products %}
+            <div tabindex="1" role="group" class="result">
+                <a tabindex="-1" href='{{ url_for("main.product", productid=product.id) }}' class="image-container">
+                    <img class="result-img"
+                    src='{{ url_for("static", filename="img/" + product.image) }}'
+                    alt="">
+                </a>
+                <div class="text-container">
+                    <div class="row">
+                        <h6 class="item-name"><a tabindex="3" href='{{ url_for("main.product", productid=product.id) }}'>{{ product.name }}</a></h6>
+                        <p class="item-price">£{{ product.price }} ({{ product.emissions }} kg/mi)</p>
+                    </div>
+
+                    <p class="item-description">{{ product.short_desc }}</p>
+                </div>
+                <button onclick="addToBasket({{ product.id }})" tabindex="2" class="btn btn-addtocart">Add to cart</button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

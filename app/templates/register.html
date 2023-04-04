@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block body %}
+    {% block notifications %}
+        <div id="notification-wrapper"></div>
+    {% endblock %}
+    <div class="center-wrapper">
+        {% block nav %}
+            {% block cart %}{% endblock %}
+            {% block register %}{% endblock %}
+            {{ super() }}
+        {% endblock %}
+
+        {% block main %}
+        <main class="center">
+            <h1>Register</h1>
+            <form class="longform" action="">
+                <div>
+                    <label for="username">Username <span class="errormsg" id="register-username-error"></span></label> <br>
+                    <input type="text" name="username" id="register-username">
+                </div>
+
+                <div>
+                    <label for="password">Password <span class="errormsg" id="register-password-error"></span></label> <br>
+                    <input type="password" name="password" id="register-password">
+                </div>
+
+                <div>
+                    <label for="password-confirm">Confirm password <span class="errormsg" id="register-password-confirm-error"></span></label> <br>
+                    <input type="password" name="password-confirm" id="register-password-confirm">
+                </div>
+
+                <button class="btn" type="submit">Sign Up</button>
+            </form>
+        </main>
+        {% endblock %}
+    </div>
+{% endblock %}

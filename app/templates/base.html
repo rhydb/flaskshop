@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>TractorKingdom</title>{% endblock %}
+
+    <link rel="stylesheet" href='{{ url_for("static", filename="style.css") }}'>
+    <script src='{{ url_for("static", filename="main.js") }}'></script>
+    {% endblock %}
+</head>
+
+{% block body %}
+<body>
+    {% block notifications %}
+        <div id="notification-wrapper"></div>
+    {% endblock %}
+    {% block nav %}
+    <nav>
+        <h1 class="logo">TractorKingdom</h1>
+        
+        <div class="button-row">
+            {% block navbuttons %}
+            {% block cart %}<a tabindex="0" class="cart btn btn-green">£24.93</a>{% endblock %}
+            {% block register %}<a href='{{ url_for("main.register") }}' tabindex="0" class="btn">Sign Up</a>{% endblock %}
+            {% block login %} <a href='{{ url_for("main.login") }}' tabindex="0" class="btn btn-secondary">Log In</a>{% endblock %}
+            {% endblock %}
+        </div>
+    </nav>
+    {% endblock %}
+
+    {% block main %}
+    <main>
+    </main>
+    {% endblock %}
+</body>
+{% endblock %}
+
+</html>
