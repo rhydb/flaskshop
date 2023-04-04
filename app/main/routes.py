@@ -1,8 +1,9 @@
-from flask_login import login_user
+from flask_login import current_user, login_user
 from ..models import User, Product
 from . import main
 from .. import db
-from flask import flash, redirect, render_template, session, url_for, request
+from flask import flash, jsonify, redirect, render_template, session, url_for, request
+from .setup import tractor_items
 
 
 @main.route("/products/<int:productid>")
@@ -40,10 +41,24 @@ def register():
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = db.session.execute(db.select(User).where(User.username == request.form["username"])).scalar()
+        user = db.session.execute(
+            db.select(User).where(User.username == request.form["username"])
+        ).scalar()
         if user and User.verify_password(request.form["password"], user.password_hash):
             login_user(user)
-            return redirect(request.args.get('next') or url_for('main.index'))
+            return redirect(request.args.get("next") or url_for("main.index"))
 
         flash("Invalid username or password")
     return render_template("login.html")
+
+
+@main.post("/basket")
+def basket_post():
+    json = request.get_json()
+    if not json:
+        return jsonify({"msg": "Invalid request", "error": 1})
+
+    product_id = json["product"]
+    user_id = current_user.id
+    print(f"{product_id=} {user_id=}")
+    return jsonify({"error": 0})

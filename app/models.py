@@ -34,3 +34,12 @@ class Product(db.Model):
     image = db.Column(db.String(50))
     short_desc = db.Column(db.String(50))
     long_desc = db.Column(db.String(150))
+
+
+class Basket(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(Product.id), nullable=False)
+
+class BasketItem(db.Model):
+    product_id = db.Column(db.Integer, db.ForeignKey(Product.id), nullable=False, primary_key=True)
+    basket_id = db.Column(db.Integer, db.ForeignKey(Basket.id), nullable=False, primary_key=True)
