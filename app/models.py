@@ -20,6 +20,7 @@ class User(UserMixin, db.Model):
         user = User(username=username, password_hash=User.hash_password(password))
         db.session.add(user)
         db.session.commit()
+        return user
 
 @lm.user_loader
 def load_user(id):

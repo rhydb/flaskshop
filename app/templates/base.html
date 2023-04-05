@@ -24,7 +24,7 @@
         
         <div class="button-row">
             {% block navbuttons %}
-            {% block cart %}<a tabindex="0" class="cart btn btn-green">£24.93</a>{% endblock %}
+            {% block basket %}<a tabindex="0" class="basket btn btn-green">£24.93</a>{% endblock %}
             {% block register %}<a href='{{ url_for("main.register") }}' tabindex="0" class="btn">Sign Up</a>{% endblock %}
             {% block login %} <a href='{{ url_for("main.login") }}' tabindex="0" class="btn btn-secondary">Log In</a>{% endblock %}
             {% endblock %}

@@ -33,9 +33,39 @@ def setup():
     return redirect(url_for("main.index"))
 
 
-@main.route("/register", methods=["GET", "POST"])
+@main.get("/register")
 def register():
     return render_template("register.html")
+
+
+@main.post("/register")
+def register_post():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    password_confirm = request.form.get("password-confirm")
+
+    def data_is_valid() -> bool:
+        if not (username and password and password_confirm):
+            flash("Username and password are required")
+            return False
+        if password != password_confirm:
+            flash("Passwords do not match")
+            return False
+
+        username_exists = db.session.execute(
+            db.select(User).where(User.username == request.form["username"])
+        ).scalar()
+        if username_exists:
+            flash("An account with that username already exists")
+            return False
+        return True
+
+    if not data_is_valid():
+        return render_template("main.register")
+
+    user = User.register(username, password)
+    login_user(user)
+    return redirect(url_for("main.index"))
 
 
 @main.route("/login", methods=["GET", "POST"])
