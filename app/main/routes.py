@@ -15,14 +15,33 @@ def product(productid):
 @main.route("/")
 @main.route("/products/")
 def index():
-    search = request.args.get("search")
-    if search:
-        products = db.session.execute(
-            db.select(Product).filter(Product.name.like("%" + search + "%"))
-        ).scalars()
-    else:
-        products = db.session.execute(db.select(Product)).scalars()
-    return render_template("index.html", products=products)
+    sorts = {
+        "az": ("Name A-Z", Product.name),
+        "za": ("Name Z-A", Product.name.desc()),
+        "lowhigh": ("Price low to high", Product.price),
+        "highlow": ("Price high to low", Product.price.desc()),
+        "emissions": ("Emissions low to high", Product.emissions),
+        "emissionsdesc": ("Emissions high to low", Product.emissions.desc()),
+    }
+
+    search = request.args.get("search", "")
+    sortKey = request.args.get("sortBy")
+    if sortKey not in sorts:
+        sortKey = "az"
+    sort = sorts[sortKey]
+
+    products = db.session.execute(
+        db.select(Product)
+        .filter(Product.name.like("%" + search + "%"))
+        .order_by(sort[1])
+    ).scalars()
+    return render_template(
+        "index.html",
+        products=products,
+        sorts=sorts.items(),
+        selected=sortKey,
+        search=search,
+    )
 
 
 @main.route("/setup")

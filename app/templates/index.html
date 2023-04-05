@@ -6,22 +6,25 @@
     {% endif %}
     <div class="indented">
         <div class="search-container">
-            <form class="search-wrapper" action="">
-                <input type="text" name="search" id="searchInput" class="search">
-                <button class="btn search">Search</button>
+            <form class="" action="">
+                <div class="search-wrapper">
+                    <input value="{{ search }}" type="text" name="search" id="searchInput" class="search">
+                    <button class="btn search">Search</button>
+                </div>
+
+                <div class="row row-spread">
+                    <p>Showing <span id="result-count"></span> results</p>
+                    <div>
+                        <label for="sortBy">Sort</label>
+                        <select name="sortBy" id="sortBy">
+                            {% for value, (name, _) in sorts %}
+                                <option {{ "selected" if selected == value else "" }}  value="{{ value }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
             </form>
 
-            <div>
-                <p>Showing <span id="result-count"></span> results</p>
-                <label for="sortBy">Sort</label>
-                <select name="sortBy" id="sortBy">
-                    <option value="lowhigh">Price low to high</option>
-                    <option value="highlow">Price high to low</option>
-                    <option value="az">Name A-Z</option>
-                    <option value="az">Name Z-A</option>
-                    <option value="az">Environmental impact</option>
-                </select>
-            </div>
         </div>
         <div class="result-wrapper" id="result-wrapper">
             {% for product in products %}

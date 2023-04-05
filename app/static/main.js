@@ -126,7 +126,6 @@ const loginPage = () => {
 const indexPage = () => {
     const resultCount = document.getElementById("result-count");
     const resultWrapper = document.getElementById("result-wrapper");
-    console.log(resultWrapper.children, resultWrapper.children.length)
     resultCount.innerText = resultWrapper.children.length;
 }
 

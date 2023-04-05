@@ -116,6 +116,9 @@ nav .button-row {
     display: flex;
     align-items: center;
 }
+.row-spread {
+    justify-content: space-between;
+}
 .column {
     display: flex;
     flex-direction: column;
