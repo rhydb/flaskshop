@@ -121,7 +121,6 @@ const loginPage = () => {
         }
     });
     addInputValidation("login-password", required);
-
 }
 
 const indexPage = () => {
