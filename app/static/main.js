@@ -1,4 +1,4 @@
-const basket = {}
+basket = {}
 
 const notificationTypes = {
     SUCCESS: "good",
@@ -15,9 +15,23 @@ const pushNotification = (text, type) => {
         setTimeout(() => notification.remove(), 200);
     }
     document.getElementById("notification-wrapper").prepend(notification);
+    
+    setTimeout(() => notification.click(), 2000);
 }
 
-const addToBasket = (product) => {
+const createRemoveFromBasketBtn = () => {
+    const btn = document.createElement("button");
+    btn.classList.add("btn", "btn-removefrombasket");
+    btn.innerText = "Remove from basket";
+    return btn;
+}
+
+const errorMessage = (error) => {
+    pushNotification("An error occured!", notificationTypes.ERROR);
+    console.error(error);
+}
+
+const addToBasket = (event, product) => {
     fetch('/basket', {
         method: 'POST',
         headers: {
@@ -29,19 +43,24 @@ const addToBasket = (product) => {
         .then(data => {
             // update the count in local storage
             if (data.error) {
-                pushNotification("An error occured!", notificationTypes.ERROR)
-                console.error(data.message);
+                errorMessage(error.message);
                 return;
             }
-            let count = Number.parseInt(localStorage.getItem(product) ?? 0) // the current count or 0 if it is not in the basket;
-            localStorage.setItem(product, count + 1);
+
+            const newCount = (basket[product] ?? 0) + 1; // the current count or 0 if not in the basket
+            basket[product] = newCount;
+
+            if (newCount == 1) {
+                // add the remove from basket button
+                const removeFromBasketBtn = createRemoveFromBasketBtn();
+                event.target.insertAdjacentElement("afterend", removeFromBasketBtn);
+            }
+
             pushNotification("Added to basket", notificationTypes.SUCCESS);
 
+
         })
-        .catch(error => {
-            console.error(error)
-            pushNotification("An error occured", notificationTypes.ERROR);
-        });
+        .catch(errorMessage);
 
 }
 
@@ -127,6 +146,18 @@ const indexPage = () => {
     const resultCount = document.getElementById("result-count");
     const resultWrapper = document.getElementById("result-wrapper");
     resultCount.innerText = resultWrapper.children.length;
+
+    fetch('/basket')
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.error) {
+                errorMessage(data.message);
+                return;
+            }
+
+            basket = data;
+        })
+        .catch(errorMessage);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

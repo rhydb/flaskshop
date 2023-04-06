@@ -28,22 +28,25 @@
         </div>
         <div class="result-wrapper" id="result-wrapper">
             {% for product in products %}
-            <div tabindex="1" role="group" class="result">
-                <a tabindex="-1" href='{{ url_for("main.product", productid=product.id) }}' class="image-container">
-                    <img class="result-img"
-                    src='{{ url_for("static", filename="img/" + product.image) }}'
-                    alt="">
-                </a>
-                <div class="text-container">
-                    <div class="row">
-                        <h6 class="item-name"><a tabindex="3" href='{{ url_for("main.product", productid=product.id) }}'>{{ product.name }}</a></h6>
-                        <p class="item-price">£{{ product.price }} ({{ product.emissions }} kg/mi)</p>
-                    </div>
+                <div tabindex="1" role="group" class="result">
+                    <a tabindex="-1" href='{{ url_for("main.product", productid=product.id) }}' class="image-container">
+                        <img class="result-img"
+                        src='{{ url_for("static", filename="img/" + product.image) }}'
+                        alt="">
+                    </a>
+                    <div class="text-container">
+                        <div class="row">
+                            <h6 class="item-name"><a tabindex="3" href='{{ url_for("main.product", productid=product.id) }}'>{{ product.name }}</a></h6>
+                            <p class="item-price">£{{ product.price }} ({{ product.emissions }} kg/mi)</p>
+                        </div>
 
-                    <p class="item-description">{{ product.short_desc }}</p>
+                        <p class="item-description">{{ product.short_desc }}</p>
+                    </div>
+                    <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
+                    {% if product.id|string in session.get("basket", ()) %}
+                        <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-removefrombasket">Remove from basket</button>
+                    {% endif %}
                 </div>
-                <button onclick="addToBasket({{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
-            </div>
             {% endfor %}
         </div>
     </div>

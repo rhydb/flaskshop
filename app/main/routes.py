@@ -107,7 +107,15 @@ def basket_post():
     if not json:
         return jsonify({"msg": "Invalid request", "error": 1})
 
+
     product_id = json["product"]
-    user_id = current_user.id
-    print(f"{product_id=} {user_id=}")
+    session.setdefault("basket", {});
+    session["basket"][str(product_id)] = session["basket"].get(str(product_id), 0) + 1
+    session.modified = True
+
     return jsonify({"error": 0})
+
+@main.get("/basket")
+def basket_get():
+    session.setdefault("basket", {});
+    return jsonify(session["basket"])

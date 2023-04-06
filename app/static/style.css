@@ -6,6 +6,7 @@
 
 :root {
     --red: #a41212;
+    --lightred: #b31515;
 
     --green: #6BBAA3;
     --lightgreen:#6cc3ac; 
@@ -152,6 +153,13 @@ nav .button-row {
     box-shadow: 0px 1px 10px 0px rgba(0, 0, 255, 0.25);
 }
 
+.btn-removefrombasket {
+    background-color: var(--red);
+}
+.btn-removefrombasket:hover {
+    background-color: var(--lightred);
+}
+
 .btn-green {
     background-color: var(--green);
 }
@@ -246,8 +254,12 @@ button.search {
     padding: 10px 5px;
 }
 
-.result .btn-addtobasket {
+.result .btn-addtobasket,
+.result .btn-removefrombasket {
     border-radius: 0;
+}
+
+.result .btn-addtobasket {
     margin-top: auto;
 }
 
@@ -282,7 +294,8 @@ button.search {
     border-radius: 4px;
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.25);
 }
-.item-info .btn-addtobasket {
+.item-info .btn-addtobasket,
+.item-info .btn-removefrombasket {
     max-width: 200px;
 }
 
