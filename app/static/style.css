@@ -133,6 +133,7 @@ nav .button-row {
 }
 
 .btn {
+    font-family: inherit;
     border: none;
     background: var(--blue);
     border-radius: 4px;
