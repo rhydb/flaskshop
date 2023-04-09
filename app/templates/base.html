@@ -24,9 +24,13 @@
         
         <div class="button-row">
             {% block navbuttons %}
-            {% block basket %}<a tabindex="0" class="basket btn btn-green">£24.93</a>{% endblock %}
-            {% block register %}<a href='{{ url_for("main.register") }}' tabindex="0" class="btn">Sign Up</a>{% endblock %}
-            {% block login %} <a href='{{ url_for("main.login") }}' tabindex="0" class="btn btn-secondary">Log In</a>{% endblock %}
+                {% block basket %}<a tabindex="0" class="basket btn btn-green">£24.93</a>{% endblock %}
+                {% if current_user.is_authenticated %}
+                    {% block logout %}<a href='{{ url_for("main.logout") }}' tabindex="0" class="btn">Logout</a>{% endblock %}
+                {% else %}
+                    {% block register %}<a href='{{ url_for("main.register") }}' tabindex="0" class="btn">Sign Up</a>{% endblock %}
+                    {% block login %} <a href='{{ url_for("main.login") }}' tabindex="0" class="btn btn-secondary">Log In</a>{% endblock %}
+                {% endif %}
             {% endblock %}
         </div>
     </nav>

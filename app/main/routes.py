@@ -1,4 +1,4 @@
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 from ..models import User, Product
 from . import main
 from .. import db
@@ -100,6 +100,10 @@ def login():
         flash("Invalid username or password")
     return render_template("login.html")
 
+@main.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("main.index"))
 
 @main.post("/basket")
 def basket_post():
