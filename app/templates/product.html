@@ -16,7 +16,9 @@
                 <div class="column">
                     <h1 class="item-name">{{ product.name }}</h1>
                     <p>£{{ product.price }}</p>
-                    <button onclick="addToBasket(event, {{ product.id }})" class="btn btn-addtobasket">Add to basket</button>
+                    <div class="basketbuttons">
+                        <button onclick="addToBasket(event, {{ product.id }})" class="btn btn-addtobasket">Add to basket</button>
+                    </div>
                 </div>
             </div>
 

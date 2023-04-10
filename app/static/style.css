@@ -160,12 +160,30 @@ nav .button-row {
     box-shadow: 0px 1px 10px 0px rgba(0, 0, 255, 0.25);
 }
 
-.btn-removefrombasket {
+.basketbuttons {
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+}
+.basketbuttons .btn {
+    width: 100%;
+}
+
+.btn-decrementbasket {
     background-color: var(--red);
+    flex: 0;
+    border-radius: 0;
 }
-.btn-removefrombasket:hover {
-    background-color: var(--lightred);
+.btn-decrementbasket:hover { background-color: var(--lightred); }
+.btn-decrementbasket:before { content: "-"; }
+
+.btn-incrementbasket {
+    background-color: var(--green);
+    flex: 0;
+    border-radius: 0;
 }
+.btn-incrementbasket:hover { background-color: var(--lightgreen); }
+.btn-incrementbasket:before { content: "+"; }
 
 .btn-green {
     background-color: var(--green);
@@ -264,10 +282,6 @@ button.search {
 .result .btn-addtobasket,
 .result .btn-removefrombasket {
     border-radius: 0;
-}
-
-.result .btn-addtobasket {
-    margin-top: auto;
 }
 
 .result .item-name {

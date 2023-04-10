@@ -1,11 +1,26 @@
 basket = {}
 
+const basketCount = (product) => basket[product] ?? 0;
+
+const postAddToBasket = async (product) => {
+    return fetch('/basket', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ product })
+    })
+        .then(response => response.json())
+}
+
+
 const notificationTypes = {
     SUCCESS: "good",
     ERROR: "bad",
 }
 
 const pushNotification = (text, type) => {
+    // add a notification to the screen and remove it after 2s or when clicked
     const notification = document.createElement("div");
     notification.innerText = text;
     notification.classList.add("notification");
@@ -19,11 +34,42 @@ const pushNotification = (text, type) => {
     setTimeout(() => notification.click(), 2000);
 }
 
-const createRemoveFromBasketBtn = () => {
-    const btn = document.createElement("button");
-    btn.classList.add("btn", "btn-removefrombasket");
-    btn.innerText = "Remove from basket";
-    return btn;
+const createBasketButtons = (btn, product) => {
+    // add +/- buttons either side of the add to basket button
+    const decrement = document.createElement("button");
+    decrement.classList.add("btn", "btn-decrementbasket");
+    btn.insertAdjacentElement("beforebegin", decrement);
+
+    const increment = document.createElement("button");
+    increment.classList.add("btn", "btn-incrementbasket");
+    btn.insertAdjacentElement("afterend", increment);
+
+    decrement.onclick = () => {
+        removeFromBasket(product);
+
+        const count = basketCount(product);
+        if (count === 0) {
+            // reset the button back and remove the increment/decrement buttons
+            btn.innerText = "Add to basket";
+            decrement.remove();
+            increment.remove();
+        } else {
+            btn.innerText = `${count} in basket`;
+        }
+    }
+
+    increment.onclick = () => {
+        postAddToBasket(product).then((data) => {
+            if (data.error) {
+                errorMessage(data.msg);
+                return;
+            }
+            const newCount = basketCount(product) + 1; // the current count or 0 if not in the basket
+            basket[product] = newCount;
+
+            btn.innerText = `${newCount} in basket`;
+        });
+    }
 }
 
 const errorMessage = (error) => {
@@ -32,36 +78,31 @@ const errorMessage = (error) => {
 }
 
 const addToBasket = (event, product) => {
-    fetch('/basket', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ product })
+    if (basketCount(product) > 0) {
+        // the user must use the increment/decrement buttons
+        return;
+    } 
+
+    return postAddToBasket(product).then(data => {
+        // update the count in local storage
+        if (data.error) {
+            errorMessage(data.msg);
+            return;
+        }
+
+        const newCount = basketCount(product) + 1; // the current count or 0 if not in the basket
+        basket[product] = newCount;
+
+        if (newCount === 1) {
+            // add the - + basket buttons
+            createBasketButtons(event.target, product);
+            event.target.onclick = null;
+            event.target.innerText = "1 in basket";
+        }
+
+        pushNotification("Added to basket", notificationTypes.SUCCESS);
     })
-        .then(response => response.json())
-        .then(data => {
-            // update the count in local storage
-            if (data.error) {
-                errorMessage(error.message);
-                return;
-            }
-
-            const newCount = (basket[product] ?? 0) + 1; // the current count or 0 if not in the basket
-            basket[product] = newCount;
-
-            if (newCount == 1) {
-                // add the remove from basket button
-                const removeFromBasketBtn = createRemoveFromBasketBtn();
-                event.target.insertAdjacentElement("afterend", removeFromBasketBtn);
-            }
-
-            pushNotification("Added to basket", notificationTypes.SUCCESS);
-
-
-        })
         .catch(errorMessage);
-
 }
 
 const formatNumber = (n) => {

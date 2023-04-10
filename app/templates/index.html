@@ -42,10 +42,12 @@
 
                         <p class="item-description">{{ product.short_desc }}</p>
                     </div>
-                    <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
-                    {% if product.id|string in session.get("basket", ()) %}
-                        <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-removefrombasket">Remove from basket</button>
-                    {% endif %}
+                    <div class="basketbuttons">
+                        <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
+                        {% if product.id|string in session.get("basket", ()) %}
+                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-removefrombasket">Remove from basket</button>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         </div>
