@@ -107,17 +107,37 @@ def logout():
 
 @main.post("/basket")
 def basket_post():
+    # handle adding something to basket
     json = request.get_json()
     if not json:
         return jsonify({"msg": "Invalid request", "error": 1})
 
 
-    product_id = json["product"]
+    product_id = str(json["product"])
     session.setdefault("basket", {});
-    session["basket"][str(product_id)] = session["basket"].get(str(product_id), 0) + 1
+    session["basket"][product_id] = session["basket"].get(product_id, 0) + 1
     session.modified = True
 
     return jsonify({"error": 0})
+
+@main.delete("/basket")
+def basket_delete():
+    # handle removing or decrementing something from basket
+    json = request.get_json()
+    if not json:
+        return jsonify({ "msg": "Invalid request", "error": 1 })
+
+    product_id = str(json["product"])
+    session.setdefault("basket", {});
+
+    if session["basket"].get(product_id):
+        session["basket"][product_id] -= 1
+        if session["basket"][product_id] <= 0:
+            session["basket"].pop(product_id)
+        session.modified = True
+
+    return jsonify({ "error": 0 })
+
 
 @main.get("/basket")
 def basket_get():

@@ -2,11 +2,22 @@ basket = {}
 
 const basketCount = (product) => basket[product] ?? 0;
 
-const postAddToBasket = async (product) => {
-    return fetch('/basket', {
-        method: 'POST',
+const sendAddToBasket = async (product) => {
+    return fetch("/basket", {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ product })
+    })
+        .then(response => response.json())
+}
+
+const sendRemoveFromBasket = async (product) => {
+    return fetch("/basket", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({ product })
     })
@@ -34,6 +45,44 @@ const pushNotification = (text, type) => {
     setTimeout(() => notification.click(), 2000);
 }
 
+const modifyBasketCount = (sendModify, product, n) => {
+    // modify the basket count of product by n usinig sendModify to send the request
+    // and return the promise passing the updated count
+    return sendModify(product).then(data => {
+        if (data.error) {
+            errorMessage(data.msg);
+            return;
+        }
+
+        const newCount = basketCount(product) + n;
+        basket[product] = newCount;
+        return newCount;
+    })
+}
+
+const decrementBasket = (event, product) => {
+    const [addToBasketBtn] = event.target.parentElement.getElementsByClassName("btn-addtobasket");
+    const [incrementButton] = event.target.parentElement.getElementsByClassName("btn-incrementbasket");
+
+    modifyBasketCount(sendRemoveFromBasket, product, -1).then(newCount => {
+        if (newCount === 0) {
+            // reset the button back and remove the increment/decrement buttons
+            addToBasketBtn.innerText = "Add to basket";
+            event.target.remove();
+            incrementButton.remove();
+        } else {
+            addToBasketBtn.innerText = `${newCount} in basket`;
+        }
+    })
+}
+
+const incrementBasket = (event, product) => {
+    const [addToBasketBtn] = event.target.parentElement.getElementsByClassName("btn-addtobasket");
+    modifyBasketCount(sendAddToBasket, product, 1).then(newCount => {
+        addToBasketBtn.innerText = `${newCount} in basket`;
+    })
+}
+
 const createBasketButtons = (btn, product) => {
     // add +/- buttons either side of the add to basket button
     const decrement = document.createElement("button");
@@ -44,32 +93,8 @@ const createBasketButtons = (btn, product) => {
     increment.classList.add("btn", "btn-incrementbasket");
     btn.insertAdjacentElement("afterend", increment);
 
-    decrement.onclick = () => {
-        removeFromBasket(product);
-
-        const count = basketCount(product);
-        if (count === 0) {
-            // reset the button back and remove the increment/decrement buttons
-            btn.innerText = "Add to basket";
-            decrement.remove();
-            increment.remove();
-        } else {
-            btn.innerText = `${count} in basket`;
-        }
-    }
-
-    increment.onclick = () => {
-        postAddToBasket(product).then((data) => {
-            if (data.error) {
-                errorMessage(data.msg);
-                return;
-            }
-            const newCount = basketCount(product) + 1; // the current count or 0 if not in the basket
-            basket[product] = newCount;
-
-            btn.innerText = `${newCount} in basket`;
-        });
-    }
+    decrement.onclick = (event) => { decrementBasket(event, product) };
+    increment.onclick = (event) => { incrementBasket(event, product) };
 }
 
 const errorMessage = (error) => {
@@ -83,7 +108,7 @@ const addToBasket = (event, product) => {
         return;
     } 
 
-    return postAddToBasket(product).then(data => {
+    return sendAddToBasket(product).then(data => {
         // update the count in local storage
         if (data.error) {
             errorMessage(data.msg);
@@ -96,7 +121,6 @@ const addToBasket = (event, product) => {
         if (newCount === 1) {
             // add the - + basket buttons
             createBasketButtons(event.target, product);
-            event.target.onclick = null;
             event.target.innerText = "1 in basket";
         }
 
@@ -117,7 +141,6 @@ const formatNumber = (n) => {
 
 const addInputValidation = (id, validate) => {
     const inputElement = document.getElementById(id);
-    console.log(inputElement);
     const errorElement = document.getElementById(`${id}-error`);
     const form = inputElement.form;
     const submitButton = form.querySelector("[type=submit]");

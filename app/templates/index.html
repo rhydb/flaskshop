@@ -43,9 +43,12 @@
                         <p class="item-description">{{ product.short_desc }}</p>
                     </div>
                     <div class="basketbuttons">
-                        <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
                         {% if product.id|string in session.get("basket", ()) %}
-                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-removefrombasket">Remove from basket</button>
+                            <button onclick="decrementBasket(event, {{ product.id }})" tabindex="2" class="btn btn-decrementbasket"></button>
+                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">{{ session["basket"][product.id|string] }} in basket</button>
+                            <button onclick="incrementBasket(event, {{ product.id }})" tabindex="2" class="btn btn-incrementbasket"></button>
+                        {% else %}
+                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
                         {% endif %}
                     </div>
                 </div>
