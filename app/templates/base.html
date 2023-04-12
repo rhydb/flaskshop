@@ -24,7 +24,7 @@
         
         <div class="button-row">
             {% block navbuttons %}
-                {% block basket %}<a tabindex="0" class="basket btn btn-green">£24.93</a>{% endblock %}
+                {% block basket %}<a tabindex="0" id="total" href="{{ url_for("main.checkout") }}" class="basket btn btn-green">£{{ total }}</a>{% endblock %}
                 {% if current_user.is_authenticated %}
                     {% block logout %}<a href='{{ url_for("main.logout") }}' tabindex="0" class="btn">Logout</a>{% endblock %}
                 {% else %}

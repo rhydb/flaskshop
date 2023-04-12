@@ -1,6 +1,9 @@
-basket = {}
+basket = {
+    products: {},
+    total: 0,
+}
 
-const basketCount = (product) => basket[product] ?? 0;
+const basketCount = (product) => basket.products[product] ?? 0;
 
 const sendAddToBasket = async (product) => {
     return fetch("/basket", {
@@ -54,8 +57,12 @@ const modifyBasketCount = (sendModify, product, n) => {
             return;
         }
 
+        basket.total = data.total;
+        const totalElement = document.getElementById("total");
+        totalElement.innerText = `£${basket.total}`;
+
         const newCount = basketCount(product) + n;
-        basket[product] = newCount;
+        basket.products[product] = newCount;
         return newCount;
     })
 }
@@ -108,25 +115,13 @@ const addToBasket = (event, product) => {
         return;
     } 
 
-    return sendAddToBasket(product).then(data => {
-        // update the count in local storage
-        if (data.error) {
-            errorMessage(data.msg);
-            return;
-        }
-
-        const newCount = basketCount(product) + 1; // the current count or 0 if not in the basket
-        basket[product] = newCount;
-
-        if (newCount === 1) {
-            // add the - + basket buttons
-            createBasketButtons(event.target, product);
-            event.target.innerText = "1 in basket";
-        }
-
+    return modifyBasketCount(sendAddToBasket, product, 1).then(newCount => {
+        event.target.innerText = `${newCount} in basket`;
+        // add the - + basket buttons
+        createBasketButtons(event.target, product);
+        event.target.innerText = "1 in basket";
         pushNotification("Added to basket", notificationTypes.SUCCESS);
-    })
-        .catch(errorMessage);
+    });
 }
 
 const formatNumber = (n) => {
@@ -223,6 +218,7 @@ const fetchBasket = async () => {
             }
 
             basket = data;
+            console.log(basket)
         })
         .catch(errorMessage);
 }

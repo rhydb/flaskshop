@@ -9,7 +9,8 @@ from .setup import tractor_items
 @main.route("/products/<int:productid>")
 def product(productid):
     product = db.get_or_404(Product, productid)
-    return render_template("product.html", product=product)
+    session.setdefault("total", 0)
+    return render_template("product.html", product=product, total=session["total"])
 
 
 @main.route("/")
@@ -35,12 +36,14 @@ def index():
         .filter(Product.name.like("%" + search + "%"))
         .order_by(sort[1])
     ).scalars()
+
     return render_template(
         "index.html",
         products=products,
         sorts=sorts.items(),
         selected=sortKey,
         search=search,
+        total=session.setdefault("total", 0)
     )
 
 
@@ -112,13 +115,17 @@ def basket_post():
     if not json:
         return jsonify({"msg": "Invalid request", "error": 1})
 
-
     product_id = str(json["product"])
+    product = db.get_or_404(Product, int(product_id))
+
     session.setdefault("basket", {});
+    session.setdefault("total", 0);
+
     session["basket"][product_id] = session["basket"].get(product_id, 0) + 1
+    session["total"] += product.price
     session.modified = True
 
-    return jsonify({"error": 0})
+    return jsonify({"error": 0, "total": session["total"]})
 
 @main.delete("/basket")
 def basket_delete():
@@ -128,24 +135,27 @@ def basket_delete():
         return jsonify({ "msg": "Invalid request", "error": 1 })
 
     product_id = str(json["product"])
-    session.setdefault("basket", {});
+    product = db.get_or_404(Product, int(product_id))
 
     if session["basket"].get(product_id):
         session["basket"][product_id] -= 1
+        session["total"] -= product.price
         if session["basket"][product_id] <= 0:
             session["basket"].pop(product_id)
         session.modified = True
 
-    return jsonify({ "error": 0 })
+    return jsonify({ "error": 0, "total": session["total"] })
 
 @main.get("/basket")
 def basket_get():
-    session.setdefault("basket", {});
-    return jsonify(session["basket"])
+    return jsonify({
+        "products": session.setdefault("basket", {}),
+        "total": session.setdefault("total", 0),
+    })
 
 @main.route("/checkout")
 def checkout():
     session.setdefault("basket", {})
     basketIds = [int(product_id) for product_id in session["basket"]]
     basket = db.session.execute(db.select(Product).where(Product.id.in_(basketIds))).scalars()
-    return render_template("checkout.html", basket=basket)
+    return render_template("checkout.html", basket=basket, total=session.setdefault("total", 0))

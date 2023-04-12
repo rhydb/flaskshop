@@ -106,7 +106,8 @@ nav .button-row {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 500px;
+    min-width: 300px;
+    max-width: fit-content;
 }
 
 .longform button {
