@@ -138,8 +138,14 @@ def basket_delete():
 
     return jsonify({ "error": 0 })
 
-
 @main.get("/basket")
 def basket_get():
     session.setdefault("basket", {});
     return jsonify(session["basket"])
+
+@main.route("/checkout")
+def checkout():
+    session.setdefault("basket", {})
+    basketIds = [int(product_id) for product_id in session["basket"]]
+    basket = db.session.execute(db.select(Product).where(Product.id.in_(basketIds))).scalars()
+    return render_template("checkout.html", basket=basket)

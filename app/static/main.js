@@ -210,8 +210,11 @@ const indexPage = () => {
     const resultCount = document.getElementById("result-count");
     const resultWrapper = document.getElementById("result-wrapper");
     resultCount.innerText = resultWrapper.children.length;
+}
 
-    fetch('/basket')
+
+const fetchBasket = async () => {
+    return fetch('/basket')
         .then((response) => response.json())
         .then((data) => {
             if (data.error) {
@@ -226,6 +229,8 @@ const indexPage = () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     // maps URL to the function that should be called
+    
+    fetchBasket();
     const funcs = {
         "/register": registerPage,
         "/login": loginPage,
