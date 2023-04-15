@@ -71,7 +71,7 @@ const decrementBasket = (event, product) => {
     const [addToBasketBtn] = event.target.parentElement.getElementsByClassName("btn-addtobasket");
     const [incrementButton] = event.target.parentElement.getElementsByClassName("btn-incrementbasket");
 
-    modifyBasketCount(sendRemoveFromBasket, product, -1).then(newCount => {
+    return modifyBasketCount(sendRemoveFromBasket, product, -1).then(newCount => {
         if (newCount === 0) {
             // reset the button back and remove the increment/decrement buttons
             addToBasketBtn.innerText = "Add to basket";
@@ -80,14 +80,69 @@ const decrementBasket = (event, product) => {
         } else {
             addToBasketBtn.innerText = `${newCount} in basket`;
         }
+        return newCount;
     })
 }
 
 const incrementBasket = (event, product) => {
     const [addToBasketBtn] = event.target.parentElement.getElementsByClassName("btn-addtobasket");
-    modifyBasketCount(sendAddToBasket, product, 1).then(newCount => {
+    return modifyBasketCount(sendAddToBasket, product, 1).then(newCount => {
         addToBasketBtn.innerText = `${newCount} in basket`;
+        return newCount;
     })
+}
+
+// functions to generate the IDs used in the HTML for specific things
+// using these functions reduces room for error like typos!
+const checkoutSummaryItemId = (product) => `product-summary-${product}`;
+const checkoutProductId = (product) => `product-${product}`;
+
+const decrementCheckoutBasket = (event, product) => {
+    decrementBasket(event, product).then(newCount => {
+        const productSummary = document.getElementById(checkoutSummaryItemId(product));
+        if (newCount === 0) {
+            const productElement = document.getElementById(checkoutProductId(product));
+            productElement.remove();
+            productSummary.remove();
+            disablePayBtnWhenBasketEmpty();
+            return;
+        }
+
+        const [itemCount] = productSummary.getElementsByClassName("item-count");
+        itemCount.innerText = newCount;
+    })
+}
+
+const createCheckoutSummaryItem = (product, name, price) => {
+    const summaries = document.getElementById("summaries");
+    const summaryItem = document.createElement("div");
+    summaryItem.id = checkoutSummaryItemId(product);
+    summaryItem.classList.add("summary-item");
+
+    const nameElement = document.createElement("div");
+    nameElement.classList.add("item-name");
+    nameElement.innerText = `${name} x`;
+    const countElement = document.createElement("span");
+    countElement.classList.add("item-count");
+    countElement.innerText = "1";
+    nameElement.append(countElement);
+    summaryItem.append(nameElement);
+
+    const priceElement = document.createElement("div");
+    priceElement.classList.add("item-price");
+    priceElement.innerText = `£${price}`;
+    summaryItem.append(priceElement);
+
+    summaries.append(summaryItem);
+}
+
+const incrementCheckoutBasket = (event, product) => {
+    incrementBasket(event, product).then(newCount => {
+        const productSummary = document.getElementById(checkoutSummaryItemId(product));
+        const [itemCount] = productSummary.getElementsByClassName("item-count");
+        console.log(itemCount);
+        itemCount.innerText = newCount;
+    });
 }
 
 const createBasketButtons = (btn, product) => {
@@ -121,6 +176,7 @@ const addToBasket = (event, product) => {
         createBasketButtons(event.target, product);
         event.target.innerText = "1 in basket";
         pushNotification("Added to basket", notificationTypes.SUCCESS);
+        return newCount;
     });
 }
 
@@ -223,18 +279,29 @@ const fetchBasket = async () => {
         .catch(errorMessage);
 }
 
+const disablePayBtnWhenBasketEmpty = () => {
+    if (basket.total === 0) {
+        console.log(basket.total)
+        const payBtn = document.getElementById("btn-pay");
+        if (payBtn)
+            payBtn.disabled = true;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // maps URL to the function that should be called
     
-    fetchBasket();
     const funcs = {
         "/register": registerPage,
         "/login": loginPage,
         "/": indexPage,
         "/products/": indexPage,
+        "/checkout": disablePayBtnWhenBasketEmpty,
     }
 
-    if (funcs[location.pathname]) {
-        funcs[location.pathname]();
-    }
+    fetchBasket().then(() => {
+        if (funcs[location.pathname]) {
+            funcs[location.pathname]();
+        }
+    });
 })
