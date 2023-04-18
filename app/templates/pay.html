@@ -32,10 +32,17 @@
 
                 <div>
                     <label for="expiry-month">Expiry <span class="errormsg" id="pay-expiry-error"></span></label> <br>
-                    <input type="number" name="expiry-month" id="pay-expiry-month">
-                    <input type="number" name="expiry-year" id="pay-expiry-year">
+                    <div class="row expiry-date">
+                        <div class="column">
+                            <label for="expiry-month">MM</label>
+                            <input class="twodigit" name="expiry-month" id="pay-expiry-month">
+                        </div>
+                        <div class="column">
+                            <label for="expiry-month">YYYY</label>
+                            <input class="fourdigit" name="expiry-year" id="pay-expiry-year">
+                        </div>
+                    </div>
                 </div>
-
                 <button class="btn btn-pay btn-green" type="submit">Pay</button>
             </form>
         </main>

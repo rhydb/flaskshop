@@ -198,18 +198,19 @@ const formatNumber = (n) => {
     }, "");
 }
 
-const addInputValidation = (id, validate) => {
+const addInputValidation = (id, validate, errorid) => {
     const inputElement = document.getElementById(id);
-    const errorElement = document.getElementById(`${id}-error`);
+    const errorElement = document.getElementById(errorid ?? `${id}-error`);
     const form = inputElement.form;
     const submitButton = form.querySelector("[type=submit]");
     submitButton.disabled = true;
 
     inputElement.addEventListener("input", () => {
         errorElement.innerText = "";
-        const error = validate(inputElement.value);
-        if (error) {
-            errorElement.innerText = error;
+        let validator = new Validator(inputElement.value);
+        validate(validator);
+        if (validator.error) {
+            errorElement.innerText = validator.error;
             inputElement.classList.remove("good")
             inputElement.classList.add("bad");
             submitButton.disabled = true;
@@ -231,38 +232,31 @@ const addInputValidation = (id, validate) => {
 }
 
 const registerPage = () => {
-    addInputValidation("register-username", (value) => {
-        if (value.length < 3) {
-            return "Username must be at least 3 characters long";
-        }
+    addInputValidation("register-username", (validator) => {
+        validator.validate("Username must be at least 3 characters long",
+            value => value.length < 3);
     })
 
-    addInputValidation("register-password", (value) => {
-        if (value.length < 6) {
-            return "Password must be at least 6 characters long"
-        }
+    addInputValidation("register-password", (validator) => {
+        validator.validate("Password must be at least 6 characters long",
+            value => value.length < 6)
     })
 
-    addInputValidation("register-password-confirm", (value) => {
+    addInputValidation("register-password-confirm", (validator) => {
         const password = document.getElementById("register-password").value;
-        if (password !== value) {
-            return "Passwords do not match";
-        }
+        validator.validate("Passwords must match", value => password === value)
     })
 }
 
 const loginPage = () => {
-    const required = (value) => value.length > 0 ? null : "Required";
-    addInputValidation("login-username", (value ) => {
-        const requiredResult = required(value);
-        if (requiredResult) {
-            return requiredResult;
-        }
-        if (value.length > 16) {
-            return "Username cannot be more than 16 characters"
-        }
+    addInputValidation("login-username", (validator) => {
+        validator
+            .validate("Required", value => value.length > 0)
+            .validate("Username cannot be more than 16 characters", value => value.length < 16)
     });
-    addInputValidation("login-password", required);
+    addInputValidation("login-password", (validator) => {
+        validator.validate("Required", value => value.length > 0);
+    });
 }
 
 const indexPage = () => {
@@ -319,21 +313,59 @@ class Validator {
 }
 
 const payPage = () => {
-    const ccnInput = document.getElementById("pay-ccn");
-    ccnInput.addEventListener("input", (event) => {
-        let result = new Validator(event.target.value)
+    addInputValidation("pay-ccn", (validator) => {
+        validator
             .validate("Required", value => value.length > 0)
             .validate("Can only contain digits, spaces, and dashes", value => !value.match(/[^\d \-]/))
             .validate("Must be 16 digits", value => value.replaceAll(/[^\d]/g, "").length === 16);
+    });
 
-        const errorLabel = document.getElementById("pay-ccn-error");
+    const isInt = str => /^\d+$/.test(str);
+    const expiryErrorId = "pay-expiry-error";
+    
+    // functions for validatnig that the expiry date is not in the past
+    // using the year, month, and both
+    const expiryNotInPastMsg = "Expiry cannot be in the past";
+    const validateExpiryNotInPast = () => {
+        const yearInput = document.getElementById("pay-expiry-year");
+        const year = parseInt(yearInput.value);
 
-        if (result.error) {
+        const monthInput = document.getElementById("pay-expiry-month");
+        const month = parseInt(monthInput.value);
 
+        const today = new Date();
+
+        const isNotInPast = (() => {
+            if (year === today.getFullYear()) {
+                return month > today.getMonth() + 1;
+            }
+            return year > today.getFullYear();
+        })();
+
+        if (isNotInPast) {
+            monthInput.classList.remove("bad");
+            yearInput.classList.remove("bad")
+            monthInput.classList.add("good");
+            yearInput.classList.add("good")
         }
-        
-        errorLabel.innerText = result.error;
-    })
+
+        return isNotInPast;
+    };
+
+    addInputValidation("pay-expiry-month", (validator) => {
+       validator 
+            .validate("Required", value => value.length > 0)
+            .validate("Can only be digits", isInt)
+            .validate("Must be valid month", month => parseInt(month) > 0 && parseInt(month) < 13)
+            .validate(expiryNotInPastMsg, validateExpiryNotInPast)
+    }, expiryErrorId)
+
+    addInputValidation("pay-expiry-year", (validator) => {
+        validator
+            .validate("Required", value => value.length > 0)
+            .validate("Can only be digits", isInt)
+            .validate(expiryNotInPastMsg, validateExpiryNotInPast)
+    }, expiryErrorId);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
