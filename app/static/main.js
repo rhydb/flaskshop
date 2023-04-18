@@ -63,6 +63,7 @@ const modifyBasketCount = (sendModify, product, n) => {
 
         const newCount = basketCount(product) + n;
         basket.products[product] = newCount;
+
         return newCount;
     })
 }
@@ -77,6 +78,8 @@ const decrementBasket = (event, product) => {
             addToBasketBtn.innerText = "Add to basket";
             event.target.remove();
             incrementButton.remove();
+
+            delete basket.products[product];
         } else {
             addToBasketBtn.innerText = `${newCount} in basket`;
         }
@@ -104,6 +107,10 @@ const decrementCheckoutBasket = (event, product) => {
             const productElement = document.getElementById(checkoutProductId(product));
             productElement.remove();
             productSummary.remove();
+
+            const basketCount = document.getElementById("basket-count");
+            basketCount.innerText = Object.keys(basket.products).length;
+
             disablePayBtnWhenBasketEmpty();
             return;
         }
@@ -112,6 +119,16 @@ const decrementCheckoutBasket = (event, product) => {
         itemCount.innerText = newCount;
     })
 }
+
+const incrementCheckoutBasket = (event, product) => {
+    incrementBasket(event, product).then(newCount => {
+        const productSummary = document.getElementById(checkoutSummaryItemId(product));
+        const [itemCount] = productSummary.getElementsByClassName("item-count");
+        console.log(itemCount);
+        itemCount.innerText = newCount;
+    });
+}
+
 
 const createCheckoutSummaryItem = (product, name, price) => {
     const summaries = document.getElementById("summaries");
@@ -134,15 +151,6 @@ const createCheckoutSummaryItem = (product, name, price) => {
     summaryItem.append(priceElement);
 
     summaries.append(summaryItem);
-}
-
-const incrementCheckoutBasket = (event, product) => {
-    incrementBasket(event, product).then(newCount => {
-        const productSummary = document.getElementById(checkoutSummaryItemId(product));
-        const [itemCount] = productSummary.getElementsByClassName("item-count");
-        console.log(itemCount);
-        itemCount.innerText = newCount;
-    });
 }
 
 const createBasketButtons = (btn, product) => {
@@ -283,9 +291,49 @@ const disablePayBtnWhenBasketEmpty = () => {
     if (basket.total === 0) {
         console.log(basket.total)
         const payBtn = document.getElementById("btn-pay");
-        if (payBtn)
+        if (payBtn) {
             payBtn.disabled = true;
+            payBtn.classList.add("disabled")
+        }
     }
+}
+
+class Validator {
+    constructor(data) {
+        this.data = data;
+        this.error = "";
+    }
+
+    validate(msg, callback) {
+        if (this.error) {
+            return this;
+        }
+
+        const valid = callback(this.data);
+        if (!valid) {
+            this.error = msg;
+        }
+        
+        return this;
+    }
+}
+
+const payPage = () => {
+    const ccnInput = document.getElementById("pay-ccn");
+    ccnInput.addEventListener("input", (event) => {
+        let result = new Validator(event.target.value)
+            .validate("Required", value => value.length > 0)
+            .validate("Can only contain digits, spaces, and dashes", value => !value.match(/[^\d \-]/))
+            .validate("Must be 16 digits", value => value.replaceAll(/[^\d]/g, "").length === 16);
+
+        const errorLabel = document.getElementById("pay-ccn-error");
+
+        if (result.error) {
+
+        }
+        
+        errorLabel.innerText = result.error;
+    })
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -297,6 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "/": indexPage,
         "/products/": indexPage,
         "/checkout": disablePayBtnWhenBasketEmpty,
+        "/pay": payPage,
     }
 
     fetchBasket().then(() => {

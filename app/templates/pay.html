@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Pay - TractorKingdom</title>
+{% endblock %}
+
+{% block body %}
+    {% block notifications %}
+        <div id="notification-wrapper"></div>
+    {% endblock %}
+    <div class="center-wrapper">
+        {% block nav %}
+            {% block basket %}{% endblock %}
+            {% block login %}{% endblock %}
+            {{ super() }}
+        {% endblock %}
+
+        {% block main %}
+        <main class="center">
+            <h1>Pay £{{ total }}</h1>
+
+            {% for msg in get_flashed_messages() %}
+            <div class="errormsg">{{ msg }}</div>
+            {% endfor %}
+
+            <div class="errormsg"></div>
+            <form class="longform" method="POST">
+                <div>
+                    <label for="ccn">Card Number <span class="errormsg" id="pay-ccn-error"></span></label> <br>
+                    <input name="ccn" id="pay-ccn">
+                </div>
+
+                <div>
+                    <label for="expiry-month">Expiry <span class="errormsg" id="pay-expiry-error"></span></label> <br>
+                    <input type="number" name="expiry-month" id="pay-expiry-month">
+                    <input type="number" name="expiry-year" id="pay-expiry-year">
+                </div>
+
+                <button class="btn btn-pay btn-green" type="submit">Pay</button>
+            </form>
+        </main>
+        {% endblock %}
+    </div>
+{% endblock %}

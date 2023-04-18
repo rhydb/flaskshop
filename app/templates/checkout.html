@@ -16,44 +16,45 @@
 
     {% block main %}
 
-    <main class="">
+    <div class="indented">
         <h1>Checkout</h1>
-            <div class="checkout">
-                <div class="result-wrapper">
-                    {% for product in basket %} 
-                        <div id="product-{{ product.id }}" tabindex="1" role="group" class="result">
-                            <a tabindex="-1" href='{{ url_for("main.product", productid=product.id) }}' class="image-container">
-                                <img class="result-img"
-                                     src='{{ url_for("static", filename="img/" + product.image) }}'
-                                                               alt="">
-                            </a>
+        {% if basket|length == 0 %}
+            <p>Your basket is empty!<p>
+        {%endif %}
+    </div>
+    <main class="">
+        <div class="checkout">
+            <div class="result-wrapper">
+                {% for product in basket %} 
+                    <div id="product-{{ product.id }}" tabindex="1" role="group" class="result">
+                        <a tabindex="-1" href='{{ url_for("main.product", productid=product.id) }}' class="image-container">
+                            <img class="result-img"
+                                 src='{{ url_for("static", filename="img/" + product.image) }}'
+                                                           alt="">
+                        </a>
 
-                            <div class="text-container">
-                                <div class="row">
-                                    <h6 class="item-name"><a tabindex="3" href='{{ url_for("main.product", productid=product.id) }}'>{{ product.name }}</a></h6>
-                                    <p class="item-price">£{{ product.price }} ({{ product.emissions }} kg/mi)</p>
-                                </div>
-
-                                <p class="item-description">{{ product.short_desc }}</p>
+                        <div class="text-container">
+                            <div class="row">
+                                <h6 class="item-name"><a tabindex="3" href='{{ url_for("main.product", productid=product.id) }}'>{{ product.name }}</a></h6>
+                                <p class="item-price">£{{ product.price }} ({{ product.emissions }} kg/mi)</p>
                             </div>
 
-                            <div class="basketbuttons">
-                                <button onclick="decrementCheckoutBasket(event, {{ product.id }})" tabindex="2" class="btn btn-decrementbasket"></button>
-                                <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">{{ session["basket"][product.id|string] }} in basket</button>
-                                <button onclick="incrementCheckoutBasket(event, {{ product.id }})" tabindex="2" class="btn btn-incrementbasket"></button>
-                            </div>
+                            <p class="item-description">{{ product.short_desc }}</p>
                         </div>
-                    {% endfor %}
+
+                        <div class="basketbuttons">
+                            <button onclick="decrementCheckoutBasket(event, {{ product.id }})" tabindex="2" class="btn btn-decrementbasket"></button>
+                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">{{ session["basket"][product.id|string] }} in basket</button>
+                            <button onclick="incrementCheckoutBasket(event, {{ product.id }})" tabindex="2" class="btn btn-incrementbasket"></button>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
 
             <aside class="summary-wrapper">
                 <div class="summary">
                     <h2>Summary</h2>
                     <div id="summaries">
-                        <div class="summary-item">
-                            <div>24 Items</div>
-                            <div>£2,300</div>
-                        </div>
                         {% for product in basket %}
                             <div id="product-summary-{{ product.id }}" class="summary-item">
                                 <div class="item-name">{{ product.name }} x<span class="item-count">{{basket_count[product.id|string]}}</span></div>
@@ -62,8 +63,8 @@
                         {% endfor %}
                     </div>
                     <hr>
-                    <h3>Total: <span id="total">£{{ total }}</span></h3>
-                    <button id="btn-pay" class="btn btn-green btn-pay">Pay</button>
+                    <h3>Total (<span id="basket-count">{{ basket|length }}</span> items): <span id="total">£{{ total }}</span></h3>
+                    <a href="{{ url_for("main.pay") }}" id="btn-pay" class="btn btn-green btn-pay">Pay</a>
                 </div>
             </aside>
         </div>

@@ -159,3 +159,7 @@ def checkout():
     basketIds = [int(product_id) for product_id in session["basket"]]
     basket = list(db.session.execute(db.select(Product).where(Product.id.in_(basketIds))).scalars())
     return render_template("checkout.html", basket=basket, basket_count=session["basket"], total=session.setdefault("total", 0))
+
+@main.route("/pay")
+def pay():
+    return render_template("pay.html", total=session.setdefault("total", 0))
