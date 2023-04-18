@@ -210,6 +210,7 @@ nav .button-row {
 }
 
 input {
+    font-family: inherit;
     padding: .5em;
     font-size: 100%;
     border: 1px solid var(--blue);
