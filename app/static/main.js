@@ -234,25 +234,39 @@ const addInputValidation = (id, validate, errorid) => {
 const registerPage = () => {
     addInputValidation("register-username", (validator) => {
         validator.validate("Username must be at least 3 characters long",
-            value => value.length < 3);
+            value => value.length >= 3);
     })
 
-    addInputValidation("register-password", (validator) => {
-        validator.validate("Password must be at least 6 characters long",
-            value => value.length < 6)
-    })
+    const passwordsMatchErr = "Passwords must match";
+    const validatePasswordsMatch = () => {
+        const passwordInput = document.getElementById("register-password");
+        const confirmInput = document.getElementById("register-password-confirm");
 
-    addInputValidation("register-password-confirm", (validator) => {
-        const password = document.getElementById("register-password").value;
-        validator.validate("Passwords must match", value => password === value)
-    })
+        const passwordsMatch = passwordInput.value === confirmInput.value;
+        if (passwordsMatch) {
+            passwordInput.classList.remove("bad");
+            confirmInput.classList.remove("bad")
+            passwordInput.classList.add("good");
+            confirmInput.classList.add("good")
+        }
+
+        return passwordsMatch;
+    }
+    const validatePasswords = (validator) => {
+        validator
+            .validate("Password must be at least 6 characters long",
+                value => value.length >= 6)
+            .validate(passwordsMatchErr, validatePasswordsMatch)
+    }
+
+    addInputValidation("register-password", validatePasswords);
+    addInputValidation("register-password-confirm", validatePasswords, "register-password-error");
 }
 
 const loginPage = () => {
     addInputValidation("login-username", (validator) => {
         validator
             .validate("Required", value => value.length > 0)
-            .validate("Username cannot be more than 16 characters", value => value.length < 16)
     });
     addInputValidation("login-password", (validator) => {
         validator.validate("Required", value => value.length > 0);
