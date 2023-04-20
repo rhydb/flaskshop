@@ -83,7 +83,7 @@ def register_post():
         return True
 
     if not data_is_valid():
-        return render_template("main.register")
+        return redirect(url_for("main.register"))
 
     user = User.register(username, password)
     login_user(user)
