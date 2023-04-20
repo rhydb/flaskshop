@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block main %}
 <main>
-    {% if current_user.is_authenticated %}
-        <h1>{{ current_user.username }}</h1>
-    {% endif %}
     <div class="indented">
+        {% if current_user.is_authenticated %}
+            <h1>Welcome back, {{ current_user.username }}</h1>
+        {% endif %}
         <div class="search-container">
             <form class="" action="">
                 <div class="search-wrapper">

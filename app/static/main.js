@@ -398,6 +398,37 @@ const payPage = () => {
     })
 }
 
+const addRainbow = () => {
+    console.log("hello");
+    const rainbow = document.getElementById("rainbow")
+    rainbow.style.position = "absolute";
+    let hue = 0;
+    let top = 0;
+    let left = 0;
+    let dx = 1;
+    let dy = 1;
+    const width = rainbow.getBoundingClientRect().width;
+    const height = rainbow.getBoundingClientRect().height;
+    setInterval(() => {
+        hue = (hue + 1) % 360;
+        rainbow.style.color = `hsl(${hue}, 50%, 50%)`;
+        rainbow.style.top = `${top}px`;
+        rainbow.style.left = `${left}px`;
+        
+        const nextTop = top + dy;
+        if (nextTop + height > window.innerHeight || nextTop < 0) {
+            dy *= -1;
+        }
+        top += dy;
+
+        const nextLeft = left + dx;
+        if (nextLeft + width > window.innerWidth || nextLeft < 0) {
+            dx *= -1;
+        }
+        left += dx;
+    }, 1);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // maps URL to the function that should be called
     
@@ -408,6 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "/products/": indexPage,
         "/checkout": disablePayBtnWhenBasketEmpty,
         "/pay": payPage,
+        "/thankyou": addRainbow,
     }
 
     fetchBasket().then(() => {

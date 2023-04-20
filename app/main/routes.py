@@ -164,8 +164,12 @@ def checkout():
 def pay():
     return render_template("pay.html", total=session.setdefault("total", 0))
 
+@main.route("/thankyou")
+def thankyou():
+    return render_template("thankyou.html")
+
 @main.post("/pay")
 def pay_post():
     session["basket"] = {}
     session["total"] = 0
-    return render_template("thankyou.html")
+    return redirect(url_for("main.thankyou"))
