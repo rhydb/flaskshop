@@ -312,6 +312,8 @@ class Validator {
         this.error = "";
     }
 
+    static required = ["Required", (value) => value.length > 0];
+
     validate(msg, callback) {
         if (this.error) {
             return this;
@@ -327,59 +329,73 @@ class Validator {
 }
 
 const payPage = () => {
+    addInputValidation("pay-name", (validator) => {
+        validator
+            .validate(...Validator.required)
+            .validate("Can only contain letters, dashes and spaces", value => !value.match(/[^A-Za-z \-]/))
+    })
+
     addInputValidation("pay-ccn", (validator) => {
         validator
-            .validate("Required", value => value.length > 0)
+            .validate(...Validator.required)
             .validate("Can only contain digits, spaces, and dashes", value => !value.match(/[^\d \-]/))
             .validate("Must be 16 digits", value => value.replaceAll(/[^\d]/g, "").length === 16);
     });
 
-    const isInt = str => /^\d+$/.test(str);
     const expiryErrorId = "pay-expiry-error";
     
-    // functions for validatnig that the expiry date is not in the past
-    // using the year, month, and both
-    const expiryNotInPastMsg = "Expiry cannot be in the past";
-    const validateExpiryNotInPast = () => {
-        const yearInput = document.getElementById("pay-expiry-year");
-        const year = parseInt(yearInput.value);
+    const validateExpiryNotInPast = [
+        "Expiry cannot be in the past",
+        () => {
+            const yearInput = document.getElementById("pay-expiry-year");
+            const year = parseInt(yearInput.value);
 
-        const monthInput = document.getElementById("pay-expiry-month");
-        const month = parseInt(monthInput.value);
+            const monthInput = document.getElementById("pay-expiry-month");
+            const month = parseInt(monthInput.value);
 
-        const today = new Date();
+            const today = new Date();
 
-        const isNotInPast = (() => {
-            if (year === today.getFullYear()) {
-                return month > today.getMonth() + 1;
+            const isNotInPast = (() => {
+                if (year === today.getFullYear()) {
+                    return month > today.getMonth() + 1;
+                }
+                return year > today.getFullYear();
+            })();
+
+            if (isNotInPast) {
+                monthInput.classList.remove("bad");
+                yearInput.classList.remove("bad")
+                monthInput.classList.add("good");
+                yearInput.classList.add("good")
             }
-            return year > today.getFullYear();
-        })();
 
-        if (isNotInPast) {
-            monthInput.classList.remove("bad");
-            yearInput.classList.remove("bad")
-            monthInput.classList.add("good");
-            yearInput.classList.add("good")
+            return isNotInPast;
         }
+    ];
 
-        return isNotInPast;
-    };
+    const validateDigitsOnly = ["Can only be digits", value => /^\d+$/.test(value)];
 
     addInputValidation("pay-expiry-month", (validator) => {
        validator 
-            .validate("Required", value => value.length > 0)
-            .validate("Can only be digits", isInt)
+            .validate(...Validator.required)
+            .validate(...validateDigitsOnly)
             .validate("Must be valid month", month => parseInt(month) > 0 && parseInt(month) < 13)
-            .validate(expiryNotInPastMsg, validateExpiryNotInPast)
+            .validate(...validateExpiryNotInPast)
     }, expiryErrorId)
 
     addInputValidation("pay-expiry-year", (validator) => {
         validator
-            .validate("Required", value => value.length > 0)
-            .validate("Can only be digits", isInt)
-            .validate(expiryNotInPastMsg, validateExpiryNotInPast)
+            .validate(...Validator.required)
+            .validate(...validateDigitsOnly)
+            .validate(...validateExpiryNotInPast)
     }, expiryErrorId);
+
+    addInputValidation("pay-cvv", (validator) => {
+        validator
+            .validate(...Validator.required)
+            .validate(...validateDigitsOnly)
+            .validate("Must be 3 digits", (value) => value.length === 3)
+    })
 }
 
 document.addEventListener("DOMContentLoaded", () => {

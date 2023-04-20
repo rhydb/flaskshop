@@ -22,7 +22,13 @@
                     <h1 class="item-name">{{ product.name }}</h1>
                     <p>£{{ product.price }}</p>
                     <div class="basketbuttons">
-                        <button onclick="addToBasket(event, {{ product.id }})" class="btn btn-addtobasket">Add to basket</button>
+                        {% if product.id|string in basket %}
+                            <button onclick="decrementBasket(event, {{ product.id }})" tabindex="2" class="btn btn-decrementbasket"></button>
+                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">{{ session["basket"][product.id|string] }} in basket</button>
+                            <button onclick="incrementBasket(event, {{ product.id }})" tabindex="2" class="btn btn-incrementbasket"></button>
+                        {% else %}
+                            <button onclick="addToBasket(event, {{ product.id }})" tabindex="2" class="btn btn-addtobasket">Add to basket</button>
+                        {% endif %}
                     </div>
                 </div>
             </div>

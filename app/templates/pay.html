@@ -26,6 +26,11 @@
             <div class="errormsg"></div>
             <form class="longform" method="POST">
                 <div>
+                    <label for="name">Name on card <span class="errormsg" id="pay-name-error"></span></label> <br>
+                    <input name="name" id="pay-name">
+                </div>
+
+                <div>
                     <label for="ccn">Card Number <span class="errormsg" id="pay-ccn-error"></span></label> <br>
                     <input name="ccn" id="pay-ccn">
                 </div>
@@ -42,6 +47,11 @@
                             <input class="fourdigit" name="expiry-year" id="pay-expiry-year">
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <label for="cvv">CVV <span class="errormsg" id="pay-cvv-error"></span></label> <br>
+                    <input class="threedigit" name="cvv" id="pay-cvv">
                 </div>
                 <button class="btn btn-pay btn-green" type="submit">Pay</button>
             </form>

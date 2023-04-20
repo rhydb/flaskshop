@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Thank you - TractorKingdom</title>
+{% endblock %}
+
+{% block body %}
+    {% block notifications %}
+        <div id="notification-wrapper"></div>
+    {% endblock %}
+    <div class="center-wrapper">
+        {% block nav %}
+            {% block basket %}{% endblock %}
+            {{ super() }}
+        {% endblock %}
+
+        {% block main %}
+        <main class="center">
+            <h1>Thank you for shopping at TractorKingdom</h1>
+        </main>
+        {% endblock %}
+    </div>
+{% endblock %}

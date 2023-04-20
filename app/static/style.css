@@ -221,12 +221,9 @@ input:focus {
     outline: 1px solid var(--blue);
 }
 
-input.twodigit {
-    max-width: 4ch;
-}
-input.fourdigit {
-    max-width: 6ch;
-}
+input.twodigit { max-width: 4ch; }
+input.threedigit { max-width: 5ch; }
+input.fourdigit { max-width: 6ch; }
 
 .good {
     border-color: var(--green);
@@ -291,6 +288,7 @@ button.search {
     padding: 10px 5px;
 }
 
+.item-info .btn-decrementbasket + .btn-addtobasket,
 .result .btn-addtobasket,
 .result .btn-removefrombasket {
     border-radius: 0;
@@ -334,6 +332,7 @@ button.search {
 .item-info .btn-removefrombasket {
     max-width: 200px;
 }
+
 
 .checkout {
     display: flex;

@@ -10,7 +10,7 @@ from .setup import tractor_items
 def product(productid):
     product = db.get_or_404(Product, productid)
     session.setdefault("total", 0)
-    return render_template("product.html", product=product, total=session["total"])
+    return render_template("product.html", product=product, total=session["total"], basket=session.setdefault("basket", {}))
 
 
 @main.route("/")
@@ -160,6 +160,12 @@ def checkout():
     basket = list(db.session.execute(db.select(Product).where(Product.id.in_(basketIds))).scalars())
     return render_template("checkout.html", basket=basket, basket_count=session["basket"], total=session.setdefault("total", 0))
 
-@main.route("/pay")
+@main.get("/pay")
 def pay():
     return render_template("pay.html", total=session.setdefault("total", 0))
+
+@main.post("/pay")
+def pay_post():
+    session["basket"] = {}
+    session["total"] = 0
+    return render_template("thankyou.html")
