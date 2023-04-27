@@ -6,6 +6,11 @@ from flask import flash, jsonify, redirect, render_template, session, url_for, r
 from .setup import tractor_items
 
 
+def empty_basket():
+    session["basket"] = {}
+    session["total"] = 0
+
+
 @main.route("/products/<int:productid>")
 def product(productid):
     product = db.get_or_404(Product, productid)
@@ -106,6 +111,7 @@ def login():
 @main.route("/logout")
 def logout():
     logout_user()
+    empty_basket()
     return redirect(url_for("main.index"))
 
 @main.post("/basket")
@@ -170,6 +176,5 @@ def thankyou():
 
 @main.post("/pay")
 def pay_post():
-    session["basket"] = {}
-    session["total"] = 0
+    empty_basket()
     return redirect(url_for("main.thankyou"))
