@@ -1,5 +1,5 @@
 from flask_login import current_user, login_user, logout_user
-from ..models import User, Product
+from ..models import User, Product, Basket, BasketItem
 from . import main
 from .. import db
 from flask import flash, jsonify, redirect, render_template, session, url_for, request
@@ -122,14 +122,33 @@ def basket_post():
         return jsonify({"msg": "Invalid request", "error": 1})
 
     product_id = str(json["product"])
-    product = db.get_or_404(Product, int(product_id))
+    product = db.get_or_404(Product, product_id)
 
     session.setdefault("basket", {});
     session.setdefault("total", 0);
 
-    session["basket"][product_id] = session["basket"].get(product_id, 0) + 1
+    session["basket"][str(product_id)] = session["basket"].get(str(product_id), 0) + 1
     session["total"] += product.price
     session.modified = True
+
+    if current_user.is_authenticated:
+        # update user's active basket
+        active_basket = db.session.execute(db.select(Basket).where(Basket.active)).scalar()
+        if not active_basket:
+            # does not have a basket, so make one
+            active_basket = Basket(user_id=current_user.id)
+            db.session.add(active_basket)
+
+        # add the item to the basket
+        print(f"{active_basket=}")
+        basket_item = db.session.execute(db.select(BasketItem).where((BasketItem.basket_id == active_basket.id) & (BasketItem.product_id == product_id))).scalar()
+        if not basket_item:
+            basket_item = BasketItem(product_id=product_id, basket_id=active_basket.id)
+            db.session.add(basket_item)
+        else:
+            basket_item.quantity += 1
+
+        db.session.commit()
 
     return jsonify({"error": 0, "total": session["total"]})
 
@@ -150,13 +169,35 @@ def basket_delete():
             session["basket"].pop(product_id)
         session.modified = True
 
+
+    if current_user.is_authenticated:
+        # update user's active basket
+        active_basket = db.session.execute(db.select(Basket).where(Basket.active)).scalar()
+        if not active_basket:
+            # no active basket, should not happen!
+            return jsonify({ "error": 1, "msg": "Could not remove item from basket" })
+
+        basket_item = db.session.execute(db.select(BasketItem).where((BasketItem.basket_id == active_basket.id) & (BasketItem.product_id == product_id))).scalar()
+        if not basket_item:
+            # no basket item, should not happen!
+            return jsonify({ "error": 1, "msg": "Could not remove item from basket" })
+        basket_item.quantity -= 1
+        if basket_item.quantity < 1:
+            db.session.delete(basket_item)
+
+        db.session.commit()
+
     return jsonify({ "error": 0, "total": session["total"] })
 
 @main.get("/basket")
 def basket_get():
+    if current_user.is_authenticated:
+        baskets = current_user.baskets
+        print(f"logged in {baskets=}")
     return jsonify({
         "products": session.setdefault("basket", {}),
         "total": session.setdefault("total", 0),
+        "loggedin": current_user.is_authenticated,
     })
 
 @main.route("/checkout")

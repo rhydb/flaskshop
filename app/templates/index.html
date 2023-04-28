@@ -2,6 +2,10 @@
 {% block main %}
 <main>
     <div class="indented">
+        <div class="advert">
+            <img src="{{ url_for('static', filename='img/dylan.png') }}" alt="">
+        </div>
+
         {% if current_user.is_authenticated %}
             <h1>Welcome back, {{ current_user.username }}</h1>
         {% endif %}

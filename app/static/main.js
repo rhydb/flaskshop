@@ -184,6 +184,12 @@ const addToBasket = (event, product) => {
         createBasketButtons(event.target, product);
         event.target.innerText = "1 in basket";
         pushNotification("Added to basket", notificationTypes.SUCCESS);
+
+        if (showBasketLossMsg) {
+            pushNotification("You are not logged in, basket will be lost after logging in or session end", notificationTypes.ERROR);
+            showBasketLossMsg = false;
+        }
+
         return newCount;
     });
 }
@@ -288,6 +294,9 @@ const fetchBasket = async () => {
                 errorMessage(data.message);
                 return;
             }
+
+            showBasketLossMsg = !data.loggedin;
+            console.log({showBasketLossMsg})
 
             basket = data;
             console.log(basket)
