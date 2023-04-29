@@ -7,7 +7,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(16), index=True, unique=True)
     password_hash = db.Column(db.String(40)) # sha-1 hashes are 40 characters long
-    baskets = db.relationship("Basket", backref="user", lazy=True)
+    baskets = db.relationship("Basket", backref="user", lazy="dynamic")
 
     @staticmethod
     def hash_password(password):
@@ -49,5 +49,6 @@ class Basket(db.Model):
 class BasketItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+    product = db.relationship("Product", backref="basketitem", lazy=True, uselist=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     basket_id = db.Column(db.Integer, db.ForeignKey("basket.id"), nullable=False)
