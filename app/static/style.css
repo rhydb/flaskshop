@@ -124,6 +124,9 @@ nav .button-row {
     display: flex;
     align-items: center;
 }
+.gap-1 {
+    gap: 1em;
+}
 .row-spread {
     justify-content: space-between;
 }
@@ -240,6 +243,9 @@ input.bad:focus {
 
 .errormsg {
     color: var(--red);
+}
+.goodmsg {
+    color: var(--green)
 }
 
 input.search {

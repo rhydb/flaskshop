@@ -52,3 +52,7 @@ class BasketItem(db.Model):
     product = db.relationship("Product", backref="basketitem", lazy=True, uselist=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     basket_id = db.Column(db.Integer, db.ForeignKey("basket.id"), nullable=False)
+
+class Discount(db.Model):
+    code = db.Column(db.String(10), primary_key=True)
+    discount = db.Column(db.Float, nullable=False, default=0.1)

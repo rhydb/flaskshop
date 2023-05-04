@@ -17,7 +17,14 @@
 
         {% block main %}
         <main class="center">
-            <h1>Pay £{{ total }}</h1>
+            <h1>Pay <span id="total">£{{ total }}</span></h1> 
+
+            <div class="row gap-1">
+                <label>Discount</label>
+                <input id="discountCode" type="text">
+                <button onclick="applyDiscount()" class="btn">Apply</button>
+            </div>
+            <div id="discountResult"></div>
 
             {% for msg in get_flashed_messages() %}
             <div class="errormsg">{{ msg }}</div>

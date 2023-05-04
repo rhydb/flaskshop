@@ -3,6 +3,14 @@ basket = {
     total: 0,
 }
 
+const setTotal = (total) => {
+    basket.total = total;
+    const totalElement = document.getElementById("total");
+    if (totalElement) {
+        totalElement.innerText = `£${total}`;
+    }
+}
+
 const basketCount = (product) => basket.products[product] ?? 0;
 
 const sendAddToBasket = async (product) => {
@@ -57,9 +65,7 @@ const modifyBasketCount = (sendModify, product, n) => {
             return;
         }
 
-        basket.total = data.total;
-        const totalElement = document.getElementById("total");
-        totalElement.innerText = `£${basket.total}`;
+        setTotal(data.total)
 
         const newCount = basketCount(product) + n;
         basket.products[product] = newCount;
@@ -124,7 +130,6 @@ const incrementCheckoutBasket = (event, product) => {
     incrementBasket(event, product).then(newCount => {
         const productSummary = document.getElementById(checkoutSummaryItemId(product));
         const [itemCount] = productSummary.getElementsByClassName("item-count");
-        console.log(itemCount);
         itemCount.innerText = newCount;
     });
 }
@@ -313,6 +318,28 @@ const disablePayBtnWhenBasketEmpty = () => {
             payBtn.classList.add("disabled")
         }
     }
+}
+
+const applyDiscount = () => {
+    const code = document.getElementById("discountCode").value;
+    fetch(`/discount/${code}`)
+        .then((res) => res.json())
+        .then(res => {
+            const discountResult = document.getElementById("discountResult");
+
+            if (res.error) {
+                discountResult.classList.remove("goodmsg");
+                discountResult.classList.add("errormsg");
+            } else {
+                // discount worked
+                discountResult.classList.remove("errormsg");
+                discountResult.classList.add("goodmsg");
+
+                setTotal(parseInt(res.total))
+            }
+
+            discountResult.innerText = res.message;
+        })
 }
 
 class Validator {

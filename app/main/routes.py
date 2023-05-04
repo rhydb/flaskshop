@@ -1,5 +1,5 @@
 from flask_login import current_user, login_user, logout_user
-from ..models import User, Product, Basket, BasketItem
+from ..models import User, Product, Basket, BasketItem, Discount
 from . import main
 from .. import db
 from flask import flash, jsonify, redirect, render_template, session, url_for, request
@@ -62,6 +62,10 @@ def index():
 def setup():
     for product in tractor_items:
         db.session.add(product)
+
+    for code, discount in [("discount", 0.1), ("tractor", 0.5), ("free", 1.0)]:
+        db.session.add(Discount(code=code, discount=discount))
+
     db.session.commit()
     return redirect(url_for("main.index"))
 
@@ -217,7 +221,8 @@ def checkout():
 
 @main.get("/pay")
 def pay():
-    return render_template("pay.html", total=session.setdefault("total", 0))
+    total = session.get("total", 0) * (1 - session.get("discount", 0))
+    return render_template("pay.html", total=total)
 
 @main.route("/thankyou")
 def thankyou():
@@ -232,3 +237,20 @@ def pay_post():
         db.session.commit()
     empty_session_basket()
     return redirect(url_for("main.thankyou"))
+
+@main.get("/discount/<code>")
+def discount_get(code):
+    discount = db.session.execute(db.select(Discount).where(Discount.code == code)).scalar()
+    if not discount:
+        return jsonify({ "error": 1, "message": "Invalid discount code" })
+
+    percent = "%" + str(discount.discount * 100)
+    total = session.get("total", 0)
+
+    total *= 1.0 - discount.discount
+
+    return jsonify({
+        "message": "You saved " + percent,
+        "discount": discount.discount,
+        "total": total,
+    })
