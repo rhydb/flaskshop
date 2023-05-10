@@ -26,6 +26,7 @@
             {% block navbuttons %}
                 {% block basket %}<a tabindex="0" id="total" href="{{ url_for("main.checkout") }}" class="basket btn btn-green">£{{ total }}</a>{% endblock %}
                 {% if current_user.is_authenticated %}
+                    {% block myaccount %}<a href='{{ url_for("main.myaccount") }}' tabindex="0" class="btn">My Account</a>{% endblock %}
                     {% block logout %}<a href='{{ url_for("main.logout") }}' tabindex="0" class="btn">Logout</a>{% endblock %}
                 {% else %}
                     {% block register %}<a href='{{ url_for("main.register") }}' tabindex="0" class="btn">Sign Up</a>{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="myaccount indented">
+        <aside>
+            <a href="" class="selected">Account</a>
+            <a href="">Past orders</a>
+        </aside>
+        <main>
+            <h1>Account Settings</h1>
+
+            <section>
+                <h2>Change Password</h2>
+                <form action="" class="longform">
+                    <label for="current-password">Current Password</label>
+                    <input type="password" name="current-password" id="current-password" class="input">
+
+                    <label for="new-password">New Password</label>
+                    <input type="password" name="new-password" id="new-password" class="input">
+
+                    <label for="new-password-confirm">Confirm New Password`</label>
+                    <input type="password" name="new-password-confirm" id="new-password-confirm" class="input">
+
+                    <button class="btn" type="submit">Change Password</button>
+                </form>
+            </section>
+        </main>
+    </div>
+{% endblock %}

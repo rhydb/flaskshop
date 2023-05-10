@@ -388,6 +388,33 @@ button.search {
     width: 100%;
 }
 
+/* my account page */
+.myaccount {
+    display: flex;
+    gap: 20px;
+}
+
+.myaccount aside {
+    display: flex;
+    flex-direction: column;
+    min-width: fit-content;
+    border-right: 1px solid #ccc;
+}
+
+.myaccount section {
+    margin: 10px 0;
+}
+
+.myaccount aside a {
+    padding: 10px;
+}
+.myaccount aside a.selected {
+    font-weight: bold;
+}
+.myaccount aside a:hover {
+    background-color: #eee;
+}
+
 @media (max-width: 900px) {
     .checkout {
         flex-direction: column;

@@ -254,3 +254,7 @@ def discount_get(code):
         "discount": discount.discount,
         "total": total,
     })
+
+@main.get("/myaccount")
+def myaccount():
+    return render_template("myaccount.html")
