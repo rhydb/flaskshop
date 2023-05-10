@@ -36,7 +36,7 @@ class Product(db.Model):
     emissions = db.Column(db.Integer)
     image = db.Column(db.String(50))
     short_desc = db.Column(db.String(50))
-    long_desc = db.Column(db.String(150))
+    long_desc = db.Column(db.String(1000))
 
 
 class Basket(db.Model):
