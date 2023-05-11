@@ -1,8 +1,7 @@
-from app import create_app, db, lm
+from app import app, db, lm
 from app.models import Product, User
 
 if __name__ == "__main__":
-    app = create_app("development")
     with app.app_context():
         db.create_all()
         if User.query.filter_by(username="john").first() is None:

@@ -2,11 +2,19 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 
 app = Flask(__name__)
-db = SQLAlchemy()
-lm = LoginManager()
+cfg = os.path.join(os.getcwd(), "config", "release" + ".py")
+app.config.from_pyfile(cfg)
 
+db = SQLAlchemy(app)
+lm = LoginManager(app)
+migrate = Migrate(app, db)
+
+from .main import main as main_blueprint
+
+app.register_blueprint(main_blueprint)
 
 class Item:
     def __init__(
@@ -30,6 +38,7 @@ def create_app(config_name):
 
     db.init_app(app)
     lm.init_app(app)
+    migrate.init_app(app, db)
 
     from .main import main as main_blueprint
 
