@@ -9,6 +9,10 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(40)) # sha-1 hashes are 40 characters long
     baskets = db.relationship("Basket", backref="user", lazy="dynamic")
 
+    def set_password(self, new_password):
+        self.password_hash = User.hash_password(new_password)
+        db.session.commit()
+
     @staticmethod
     def hash_password(password):
         return hashlib.sha1(password.encode()).hexdigest() 
