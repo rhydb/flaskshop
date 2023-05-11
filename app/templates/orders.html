@@ -1,0 +1,23 @@
+{% extends "accountpage.html" %}
+
+{% block sidebar %}
+    <a href="myaccount">Account</a>
+    <a href="" class="selected">Past orders</a>
+{% endblock %}
+
+{% block section %}
+    <h1>Past Orders</h1>
+
+    <section>
+        {% if not baskets %}
+            <p>You have not made any orders. Past orders you have paid for will appear here.</p>
+        {% else %}
+            {% for basket in baskets %}
+                <div class="basket_summary">
+                    <div class="total">£{{ basket.paid_total }}</div>
+                    <div class="item_count">{{ basket.basket.items|length }} items</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </section>
+{% endblock %}

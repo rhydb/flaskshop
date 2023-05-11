@@ -1,21 +1,25 @@
 import { Validator, addInputValidation } from "../validation.js"
-import { setTotal } from "../basket.js";
+import { setTotal, basket } from "../basket.js";
 
 const applyDiscount = () => {
-    const code = document.getElementById("discountCode").value;
-    fetch(`/discount/${code}`)
+    const code = document.getElementById("discountCode");
+    fetch(`/discount/${code.value}`)
         .then((res) => res.json())
         .then(res => {
             const discountResult = document.getElementById("discountResult");
 
             if (res.error) {
+                code.classList.remove("good");
+                code.classList.add("bad");
                 discountResult.classList.remove("goodmsg");
                 discountResult.classList.add("errormsg");
             } else {
                 // discount worked
+                code.classList.remove("bad");
+                code.classList.add("good");
                 discountResult.classList.remove("errormsg");
                 discountResult.classList.add("goodmsg");
-
+                basket.discountCode = code.value;
                 setTotal(parseInt(res.total))
             }
 

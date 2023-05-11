@@ -3,6 +3,7 @@ import { pushNotification, notificationTypes, errorMessage } from "./util.js";
 export const basket = {
     products: {},
     total: 0,
+    discountCode: "",
     showLossMessage: false,
 }
 

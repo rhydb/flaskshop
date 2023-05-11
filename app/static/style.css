@@ -415,6 +415,19 @@ button.search {
     background-color: #eee;
 }
 
+/* past orders page */
+.basket_summary {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 1rem;
+    display: flex;
+    gap: 10px;
+}
+.basket_summary div:nth-child(odd) {
+    border-right: 1px solid #ccc;
+    padding-right: 10px;
+}
+
 @media (max-width: 900px) {
     .checkout {
         flex-direction: column;

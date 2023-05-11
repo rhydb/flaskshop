@@ -19,12 +19,6 @@
         <main class="center">
             <h1>Pay <span id="total">£{{ total }}</span></h1> 
 
-            <div class="row gap-1">
-                <label>Discount</label>
-                <input id="discountCode" type="text">
-                <button id="discountBtn" class="btn">Apply</button>
-            </div>
-            <div id="discountResult"></div>
 
             {% for msg in get_flashed_messages() %}
             <div class="errormsg">{{ msg }}</div>
@@ -32,6 +26,14 @@
 
             <div class="errormsg"></div>
             <form class="longform" method="POST">
+                <div class="row gap-1">
+                    <label>Discount</label>
+                    <input data-novalidation name="discount" id="discountCode" type="text">
+                    <button type="button" id="discountBtn" class="btn">Apply</button>
+                </div>
+
+                <div id="discountResult"></div>
+
                 <div>
                     <label for="name">Name on card <span class="errormsg" id="pay-name-error"></span></label> <br>
                     <input name="name" id="pay-name">
