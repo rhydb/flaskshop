@@ -255,5 +255,19 @@ def discount_get(code):
     })
 
 @main.get("/myaccount")
+@login_required
 def myaccount():
     return render_template("myaccount.html")
+
+@main.post("/changepassword")
+def post_change_password():
+    if not current_user.is_authenticated:
+        return jsonify({ "error": 1, "message": "Not authenticated" })
+
+    if request.form.get("new-password") is None:
+        flash("New password not present", "error")
+    else:
+        current_user.set_password(request.form["new-password"])
+        flash("Password changed", "success")
+
+    return redirect(url_for("main.myaccount"))

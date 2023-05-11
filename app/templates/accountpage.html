@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="myaccount indented">
+        <aside>
+            {% block sidebar %}
+                <a href="" class="selected">Account</a>
+                <a href="">Past orders</a>
+            {% endblock %}
+        </aside>
+        <main>
+            {% block section %}{% endblock %}
+        </main>
+    </div>
+{% endblock %}
