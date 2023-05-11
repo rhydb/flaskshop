@@ -4,8 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
+ENV = "development"
+
 app = Flask(__name__)
-cfg = os.path.join(os.getcwd(), "config", "release" + ".py")
+cfg = os.path.join(os.getcwd(), "config", ENV + ".py")
 app.config.from_pyfile(cfg)
 
 db = SQLAlchemy(app)
