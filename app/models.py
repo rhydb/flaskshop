@@ -2,12 +2,23 @@ from sqlalchemy.orm import backref, relationship
 from flask_login import UserMixin
 from . import db, lm
 import hashlib
+import datetime
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(16), index=True, unique=True)
     password_hash = db.Column(db.String(40)) # sha-1 hashes are 40 characters long
-    baskets = db.relationship("Basket", backref="user", lazy="dynamic")
+
+    basket_id = db.Column(db.Integer, db.ForeignKey("basket.id"), nullable=False)
+    basket = db.relationship("Basket", backref="user", lazy=True, uselist=False)
+    paid_baskets = db.relationship("PaidBasket", backref="user", lazy=True)
+
+    def __init__(self, *args, **kwargs):
+        if self.basket is None:
+            self.basket = Basket()
+            self.basket_id = self.basket.id
+            db.session.add(self.basket)
+        super().__init__(*args, **kwargs)
 
     def set_password(self, new_password):
         self.password_hash = User.hash_password(new_password)
@@ -45,10 +56,16 @@ class Product(db.Model):
 
 class Basket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    active = db.Column(db.Boolean, nullable=False, default=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     items = db.relationship("BasketItem", backref="basket", lazy=True)
 
+class PaidBasket(db.Model):
+    id = db.Column(db.Integer, primary_key=True)    
+    paid_total = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    basket_id = db.Column(db.Integer, db.ForeignKey("basket.id"), nullable=False)
+    basket = db.relationship("Basket", backref="paidbasket", lazy=True, uselist=False)
 
 class BasketItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)

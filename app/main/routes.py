@@ -1,19 +1,14 @@
 from flask_login import current_user, login_user, logout_user, login_required
-from ..models import User, Product, Basket, BasketItem, Discount
+from ..models import User, Product, Basket, BasketItem, Discount, PaidBasket
 from . import main
 from .. import db
 from flask import flash, jsonify, redirect, render_template, session, url_for, request
 from .setup import tractor_items
+import datetime
 
 def empty_session_basket():
     session["basket"] = {}
     session["total"] = 0
-
-def get_active_basket():
-    basket = current_user.baskets.filter(Basket.active).scalar()
-    print("basket=", basket)
-    return basket
-
 
 @main.route("/products/<int:productid>")
 def product(productid):
@@ -112,10 +107,9 @@ def login():
         if user and User.verify_password(request.form["password"], user.password_hash):
             login_user(user)
             # load the active basket
-            active_basket = get_active_basket()
-            if active_basket:
-                session["basket"] = {item.product_id: item.quantity for item in active_basket.items}
-                session["total"] = sum(item.product.price for item in active_basket.items)
+            if current_user.basket is not None:
+                session["basket"] = {item.product_id: item.quantity for item in current_user.basket.items}
+                session["total"] = sum(item.product.price * item.quantity for item in current_user.basket.items)
                 session.modified = True
             return redirect(request.args.get("next") or url_for("main.index"))
 
@@ -147,17 +141,15 @@ def basket_post():
 
     if current_user.is_authenticated:
         # update user's active basket
-        active_basket = get_active_basket()
-        if not active_basket:
+        if current_user.basket is None:
             # does not have a basket, so make one
-            active_basket = Basket(user_id=current_user.id)
-            db.session.add(active_basket)
+            current_user.basket = Basket(user_id=current_user.id)
+            db.session.add(current_user.basket)
 
         # add the item to the basket
-        print(f"{active_basket=}")
-        basket_item = db.session.execute(db.select(BasketItem).where((BasketItem.basket_id == active_basket.id) & (BasketItem.product_id == product_id))).scalar()
+        basket_item = db.session.execute(db.select(BasketItem).where((BasketItem.basket_id == current_user.basket.id) & (BasketItem.product_id == product_id))).scalar()
         if not basket_item:
-            basket_item = BasketItem(product_id=product_id, basket_id=active_basket.id)
+            basket_item = BasketItem(product_id=product_id, basket_id=current_user.basket.id)
             db.session.add(basket_item)
         else:
             basket_item.quantity = basket_item.quantity + 1
@@ -186,12 +178,11 @@ def basket_delete():
 
     if current_user.is_authenticated:
         # update user's active basket
-        active_basket = get_active_basket()
-        if not active_basket:
+        if current_user.basket is None:
             # no active basket, should not happen!
             return jsonify({ "error": 1, "msg": "Could not remove item from basket" })
 
-        basket_item = db.session.execute(db.select(BasketItem).where((BasketItem.basket_id == active_basket.id) & (BasketItem.product_id == product_id))).scalar()
+        basket_item = db.session.execute(db.select(BasketItem).where((BasketItem.basket_id == current_user.basket.id) & (BasketItem.product_id == product_id))).scalar()
         if not basket_item:
             # no basket item, should not happen!
             return jsonify({ "error": 1, "msg": "Could not remove item from basket" })
@@ -220,8 +211,7 @@ def checkout():
 
 @main.get("/pay")
 def pay():
-    total = session.get("total", 0) * (1 - session.get("discount", 0))
-    return render_template("pay.html", total=total)
+    return render_template("pay.html", total=session.get("total", 0))
 
 @main.route("/thankyou")
 def thankyou():
@@ -230,9 +220,21 @@ def thankyou():
 @main.post("/pay")
 def pay_post():
     if current_user.is_authenticated:
-        # unmark the basket as active
-        active_basket = get_active_basket()
-        active_basket.active = False
+        if current_user.basket is None:
+            return jsonify({ "error": 1, "message": "No basket to pay for"})
+
+        paid_total = session.get("total", 0)
+        discount = db.session.execute(db.select(Discount).where(Discount.code == request.form.get("discount"))).scalar()
+        if discount:
+            paid_total *= (1 - discount.discount)
+
+        paid_basket = PaidBasket(basket_id=current_user.basket.id, basket=current_user.basket, user_id=current_user.id, paid_total=paid_total)
+        db.session.add(paid_basket)
+
+        # make a new basket for the user
+        current_user.basket = Basket()
+        db.session.add(current_user.basket)
+
         db.session.commit()
     empty_session_basket()
     return redirect(url_for("main.thankyou"))
@@ -271,3 +273,8 @@ def post_change_password():
         flash("Password changed", "success")
 
     return redirect(url_for("main.myaccount"))
+
+@main.get("/orders")
+@login_required
+def orders():
+    return render_template("orders.html", baskets=current_user.paid_baskets, total=session.get("total", 0))
