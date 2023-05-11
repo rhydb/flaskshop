@@ -135,8 +135,6 @@ export const fetchBasket = async () => {
             basket.showBasketLossMsg = !data.loggedin;
             basket.products = data.products;
             basket.total = data.total;
-
-            console.log(basket)
         })
         .catch(errorMessage);
 }
