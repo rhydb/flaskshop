@@ -257,7 +257,7 @@ def discount_get(code):
 @main.get("/myaccount")
 @login_required
 def myaccount():
-    return render_template("myaccount.html")
+    return render_template("myaccount.html", total=session.setdefault("total", 0))
 
 @main.post("/changepassword")
 def post_change_password():
