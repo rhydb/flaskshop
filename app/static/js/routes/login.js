@@ -1,9 +1,11 @@
+import { Validator, addInputValidation } from "../validation.js";
+
 export const loginPage = () => {
     addInputValidation("login-username", (validator) => {
         validator
-            .validate("Required", value => value.length > 0)
+            .validate(...Validator.required)
     });
     addInputValidation("login-password", (validator) => {
-        validator.validate("Required", value => value.length > 0);
+        validator.validate(...Validator.required);
     });
 }
