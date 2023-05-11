@@ -248,30 +248,7 @@ const registerPage = () => {
             value => value.length >= 3);
     })
 
-    const passwordsMatchErr = "Passwords must match";
-    const validatePasswordsMatch = () => {
-        const passwordInput = document.getElementById("register-password");
-        const confirmInput = document.getElementById("register-password-confirm");
-
-        const passwordsMatch = passwordInput.value === confirmInput.value;
-        if (passwordsMatch) {
-            passwordInput.classList.remove("bad");
-            confirmInput.classList.remove("bad")
-            passwordInput.classList.add("good");
-            confirmInput.classList.add("good")
-        }
-
-        return passwordsMatch;
-    }
-    const validatePasswords = (validator) => {
-        validator
-            .validate("Password must be at least 6 characters long",
-                value => value.length >= 6)
-            .validate(passwordsMatchErr, validatePasswordsMatch)
-    }
-
-    addInputValidation("register-password", validatePasswords);
-    addInputValidation("register-password-confirm", validatePasswords, "register-password-error");
+    Validator.validatePasswords("register-password", "register-password-confirm", "register-password-error")
 }
 
 const loginPage = () => {
@@ -361,6 +338,32 @@ class Validator {
         }
         
         return this;
+    }
+
+
+    static validatePasswords = (passwordId, confirmId, errorId) => {
+        const validate = (validator) => {
+            validator
+                .validate("Password must be at least 6 characters long",
+                    value => value.length >= 6)
+                .validate("Passwords must match", () => {
+                    const passwordInput = document.getElementById(passwordId);
+                    const confirmInput = document.getElementById(confirmId);
+
+                    const passwordsMatch = passwordInput.value === confirmInput.value;
+                    if (passwordsMatch) {
+                        passwordInput.classList.remove("bad");
+                        confirmInput.classList.remove("bad")
+                        passwordInput.classList.add("good");
+                        confirmInput.classList.add("good")
+                    }
+
+                    return passwordsMatch;
+                })
+        }
+
+        addInputValidation(passwordId, validate, errorId);
+        addInputValidation(confirmId, validate, errorId);
     }
 }
 
@@ -465,6 +468,13 @@ const addRainbow = () => {
     }, 1);
 }
 
+const myAccountPage = () => {
+    const newPassword = document.getElementById("new-password");
+    const newPasswordConfirm = document.getElementById("new-password-confirm");
+
+    Validator.validatePasswords("new-password", "new-password-confirm", "password-error")
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // maps URL to the function that should be called
     
@@ -476,6 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "/checkout": disablePayBtnWhenBasketEmpty,
         "/pay": payPage,
         "/thankyou": addRainbow,
+        "/myaccount": myAccountPage,
     }
 
     fetchBasket().then(() => {
