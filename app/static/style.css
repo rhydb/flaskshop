@@ -110,7 +110,7 @@ nav .button-row {
     max-width: min-content;
 }
 
-.longform button {
+.longform button[type="submit"] {
     margin-top: 20px;
     width: 100%;
     padding: .8em;

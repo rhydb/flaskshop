@@ -41,7 +41,6 @@ def index():
         .order_by(sort[1])
     ).scalars()
 
-    print(f"{session.get('basket')=}")
     return render_template(
         "index.html",
         products=products,
