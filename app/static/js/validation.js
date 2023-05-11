@@ -69,7 +69,7 @@ export const addInputValidation = (id, validate, errorid) => {
             // re-enable the button if all other input elements are also valid
             let isFormInvalid = false;
             for (let input of form.getElementsByTagName("input")) {
-                if (!input.classList.contains("good")) {
+                if (!input.classList.contains("good") && input.dataset.novalidation) {
                     isFormInvalid = true;
                     break;
                 }
