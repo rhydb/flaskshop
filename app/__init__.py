@@ -12,6 +12,7 @@ app.config.from_pyfile(cfg)
 
 db = SQLAlchemy(app)
 lm = LoginManager(app)
+lm.login_view = "main.login"
 migrate = Migrate(app, db)
 
 from .main import main as main_blueprint
