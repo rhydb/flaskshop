@@ -1,10 +1,9 @@
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Product, Basket, BasketItem, Discount
 from . import main
 from .. import db
 from flask import flash, jsonify, redirect, render_template, session, url_for, request
 from .setup import tractor_items
-
 
 def empty_session_basket():
     session["basket"] = {}
@@ -83,17 +82,17 @@ def register_post():
 
     def data_is_valid() -> bool:
         if not (username and password and password_confirm):
-            flash("Username and password are required")
+            flash("Username and password are required", "error")
             return False
         if password != password_confirm:
-            flash("Passwords do not match")
+            flash("Passwords do not match", "error")
             return False
 
         username_exists = db.session.execute(
             db.select(User).where(User.username == request.form["username"])
         ).scalar()
         if username_exists:
-            flash("An account with that username already exists")
+            flash("An account with that username already exists", "error")
             return False
         return True
 
@@ -120,7 +119,7 @@ def login():
                 session.modified = True
             return redirect(request.args.get("next") or url_for("main.index"))
 
-        flash("Invalid username or password")
+        flash("Invalid username or password", "error")
     return render_template("login.html")
 
 @main.route("/logout")
